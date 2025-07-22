@@ -8,7 +8,7 @@ from datetime import date, timedelta
 def c_to_f(celsius):
     return (celsius * 9/5) + 32
 
-def getthetemps(yesterdayFiles):
+def dohighandlowtemps(yesterdayFiles):
     outsideTemps = []
     insideTemps = []
     for filename in glob.glob(yesterdayFiles):
@@ -30,14 +30,22 @@ def getthetemps(yesterdayFiles):
         except Exception as e:
             print(f"Failed to process {filename}: {e}")
 
-    if outsideTemps and insideTemps:
-        avg_outsideTemp = sum(outsideTemps) / len(outsideTemps)
-        avg_insideTemps = sum(insideTemps) / len(insideTemps)
-        #print(f"Average OutsideTemperature for day: {avg_temp:.2f}°C from {len(temperatures)} file(s)")
-        return avg_outsideTemp, avg_insideTemps
+    if outsideTemps:
+        outsideHigh = max(outsideTemps)
+        outsideLow = min (outsideTemps)
+
     else:
-        print(f"Something failed!")
-        return None
+        print(f"Something failed in Outside!")
+
+    if insideTemps:
+        insideHigh = max(insideTemps)
+        insideLow = min (insideTemps)
+
+    else:
+        print(f"Something failed in Inside!")
+
+    return outsideHigh, outsideLow, insideHigh, insideLow
+   
 
 #folder where XML files are stored (change if needed)
 xmlFolder = "../upload"
@@ -55,8 +63,8 @@ yesterdayFiles = os.path.join(xmlFolder, (yesterday+"*.xml"))
 #end figuring various things we need to know
 
 #parse all files from yesterday and average the outside temp
-#avg_outside_tempF = c_to_f(average_outside_temp(yesterdayFiles))
-avg_outside_tempF = getthetemps(yesterdayFiles)
+#return outsideHigh, outsideLow, insideHigh, insideLow !!What gets returned!!
+databack = dohighandlowtemps(yesterdayFiles)
 
-print(avg_outside_tempF)
+print(databack)
 
