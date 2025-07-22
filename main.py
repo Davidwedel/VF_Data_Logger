@@ -5,6 +5,9 @@ import os
 import xml.etree.ElementTree as ET
 from datetime import date, timedelta
 
+def c_to_f(celsius):
+    return (celsius * 9/5) + 32
+
 def average_outside_temp(yesterdayFiles):
     temperatures = []
 
@@ -43,7 +46,7 @@ yesterdayFiles = os.path.join(xmlFolder, (yesterday+"*.xml"))
 #end figuring various things we need to know
 
 #parse all files from yesterday and average the outside temp
-avg_outside_temp = average_outside_temp(yesterdayFiles)
+avg_outside_tempF = c_to_f(average_outside_temp(yesterdayFiles))
 
-print(avg_outside_temp)
+print(avg_outside_tempF)
 
