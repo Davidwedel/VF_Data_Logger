@@ -46,6 +46,41 @@ def dohighandlowtemps(yesterdayFiles):
 
     return outsideHigh, outsideLow, insideHigh, insideLow
    
+def everythingfromlastfile(last_yesterdayFile):
+        datawesendback = []
+        try: 
+            tree = ET.parse(last_yesterdayFile)
+            root = tree.getroot()
+
+            ##mortality stuff
+            temp_element = root.find(".//TotalDailyFemaleMortality")
+            if temp_element is not None:
+                temp = int(temp_element.text)
+                datawesendback.append(temp)
+                
+            ##feed consumption stuff
+            temp_element = root.find(".//DailyFeed")
+            if temp_element is not None:
+                temp = int(temp_element.text)
+                datawesendback.append(temp)
+
+            ##water consumption stuff
+            temp_element = root.find(".//DailyWater")
+            if temp_element is not None:
+                temp = int(temp_element.text)
+                datawesendback.append(temp)
+                
+            ##avg weight stuff
+            temp_element = root.find(".//AverageWeight")
+            if temp_element is not None:
+                temp = float(temp_element.text)
+                datawesendback.append(temp)
+
+            return datawesendback
+                
+        except Exception as e:
+            print(f"Failed to process {last_yesterdayFile}: {e}")
+
 
 #folder where XML files are stored (change if needed)
 xmlFolder = "../upload"
@@ -76,3 +111,6 @@ else:
 databack = dohighandlowtemps(yesterdayFiles)
 print(databack)
 
+#returns mortality, feed consumption, water consumption, average weight
+databack = everythingfromlastfile(last_yesterdayFile)
+print(databack)
