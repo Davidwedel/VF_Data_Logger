@@ -8,24 +8,33 @@ from datetime import date, timedelta
 def c_to_f(celsius):
     return (celsius * 9/5) + 32
 
-def average_outside_temp(yesterdayFiles):
-    temperatures = []
-
+def getthetemps(yesterdayFiles):
+    outsideTemps = []
+    insideTemps = []
     for filename in glob.glob(yesterdayFiles):
-        try:
+        try: 
             tree = ET.parse(filename)
             root = tree.getroot()
+
+            ##outside temp stuff
             temp_element = root.find(".//OutsideTemperature")
             if temp_element is not None:
                 temp = float(temp_element.text)
-                temperatures.append(temp)
+                outsideTemps.append(temp)
+                
+            ##inside temp stuff
+            temp_element = root.find(".//AverageTemperature")
+            if temp_element is not None:
+                temp = float(temp_element.text)
+                insideTemps.append(temp)
         except Exception as e:
             print(f"Failed to process {filename}: {e}")
 
-    if temperatures:
-        avg_temp = sum(temperatures) / len(temperatures)
+    if outsideTemps and insideTemps:
+        avg_outsideTemp = sum(outsideTemps) / len(outsideTemps)
+        avg_insideTemps = sum(insideTemps) / len(insideTemps)
         #print(f"Average OutsideTemperature for day: {avg_temp:.2f}°C from {len(temperatures)} file(s)")
-        return avg_temp
+        return avg_outsideTemp, avg_insideTemps
     else:
         print(f"Something failed!")
         return None
@@ -46,7 +55,8 @@ yesterdayFiles = os.path.join(xmlFolder, (yesterday+"*.xml"))
 #end figuring various things we need to know
 
 #parse all files from yesterday and average the outside temp
-avg_outside_tempF = c_to_f(average_outside_temp(yesterdayFiles))
+#avg_outside_tempF = c_to_f(average_outside_temp(yesterdayFiles))
+avg_outside_tempF = getthetemps(yesterdayFiles)
 
 print(avg_outside_tempF)
 
