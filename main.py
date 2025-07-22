@@ -3,7 +3,7 @@ import requests
 import glob
 import os
 import xml.etree.ElementTree as ET
-from datetime import date, timedelta
+from datetime import date, timedelta, datetime
 
 def c_to_f(celsius):
     return (celsius * 9/5) + 32
@@ -60,11 +60,19 @@ yesterday = (date.today() - timedelta(days=1)).strftime("%Y%m%d")
 
 #file pattern to yesterday's files
 yesterdayFiles = os.path.join(xmlFolder, (yesterday+"*.xml"))
+
+matches = glob.glob(yesterdayFiles)
+
+if matches:
+    last_yesterdayFile = max(matches, key=lambda f: datetime.strptime(os.path.basename(f)[:14], "%Y%m%d%H%M%S"))
+    #print("Last file from yesterday:", last_yesterdayFile)
+else:
+    print("No files found for yesterday.")
+
 #end figuring various things we need to know
 
 #parse all files from yesterday and average the outside temp
 #return outsideHigh, outsideLow, insideHigh, insideLow !!What gets returned!!
 databack = dohighandlowtemps(yesterdayFiles)
-
 print(databack)
 
