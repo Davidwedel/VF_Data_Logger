@@ -1,3 +1,4 @@
 *.swp
 secrets.json
+nightly_secrets.json
 credentials.json

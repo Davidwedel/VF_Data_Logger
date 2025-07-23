@@ -104,7 +104,7 @@ def deleteOldFiles(howmany):
 
 
 # Load secrets
-with open("secrets.json", "r") as f:
+with open("nightlysecrets.json", "r") as f:
     secrets = json.load(f)
     
 #folder where XML files are stored (change if needed)
