@@ -81,15 +81,32 @@ def everythingfromlastfile(last_yesterdayFile):
         except Exception as e:
             print(f"Failed to process {last_yesterdayFile}: {e}")
 
-
+def deleteOldFiles(howmany):
+    if howmany == 0:
+        print("File Deletion shut off!")
+    else:
+       day2Delete = (date.today() - timedelta(days=howmany)).strftime("%Y%m%d")
+       howManyDeleted = 0
+       print(f"Deleting files!")
+       for filename in os.listdir(xmlFolder):
+           if filename.endswith(".xml") and filename[:8] <= day2Delete:
+               howManyDeleted = howManyDeleted + 1
+               filepath = os.path.join(xmlFolder, filename)
+               #print(f"Deleting: {filepath}")
+               os.remove(filepath)
+    return howManyDeleted
+        
 #folder where XML files are stored (change if needed)
 xmlFolder = "../upload"
 
+#days. 0 never deletes
+howLongToSaveOldFiles = 2
+
 #start figuring various things we need to know
-today = date.today()
 
 #get yesterday's date, as formatted in the xml filename I.E. YYYYMMDD(20250722)
 yesterday = (date.today() - timedelta(days=1)).strftime("%Y%m%d")
+#yesterday = date.today().strftime("%Y%m%d")
 
 #print("Yesterday:" + yesterday)
 
@@ -102,7 +119,8 @@ if matches:
     last_yesterdayFile = max(matches, key=lambda f: datetime.strptime(os.path.basename(f)[:14], "%Y%m%d%H%M%S"))
     #print("Last file from yesterday:", last_yesterdayFile)
 else:
-    print("No files found for yesterday.")
+    print("No files found for yesterday. Exiting...")
+    exit()
 
 #end figuring various things we need to know
 
@@ -114,3 +132,7 @@ print(databack)
 #returns mortality, feed consumption, water consumption, average weight
 databack = everythingfromlastfile(last_yesterdayFile)
 print(databack)
+
+#delete all old files, so file doesn't fill up.
+howmanydeleted = deleteOldFiles(howLongToSaveOldFiles)
+#print(howmanydeleted)
