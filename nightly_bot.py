@@ -17,7 +17,15 @@ def kg_to_lb(kg):
 def doProcessingOnAllFiles(yesterdayFiles):
     outsideTemps = []
     insideTemps = []
-    for filename in glob.glob(yesterdayFiles):
+    print(yesterdayFiles)
+
+    def extract_timestamp(filename):
+        # Assumes filenames like: 20250722225053_...
+        base = os.path.basename(filename)
+        return base.split('_')[0]  # '20250722225053'
+
+    for filename in sorted(glob.glob(yesterdayFiles), key=extract_timestamp):
+        print(filename)
         try: 
             tree = ET.parse(filename)
             root = tree.getroot()
