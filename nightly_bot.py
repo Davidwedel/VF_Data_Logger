@@ -21,7 +21,7 @@ def doProcessingOnAllFiles(yesterdayFiles):
     lightFlag = 0
     outsideTemps = []
     insideTemps = []
-    print(yesterdayFiles)
+    #print(yesterdayFiles)
 
     def extract_timestamp(filename):
         # Assumes filenames like: 20250722225053_...
@@ -46,16 +46,64 @@ def doProcessingOnAllFiles(yesterdayFiles):
                 temp = float(temp_element.text)
                 insideTemps.append(temp)
 
-            ##light processing stuff
-            light = root.find(".//Light")
-            if light is not None:
-                active = light.findtext("Active")
-                print(active)
-            else:
-                print("Light element not found")
+            ## 99999 means a failure, 100000 means total success, so no reason 
+            ## to continue calculations
+            if lightFlag < 99999:
+
+                ##light processing stuff
+                light = root.find(".//Light")
+                def grabTime():
+                    tm = root.find(".//Headers/TimeStamp").text
+                    print(tm)
+                    ##convert to datetime
+                    tm = datetime.strptime(tm, "%Y/%m/%d %H:%M:%S")
+                    return tm.time()
+
+                if light is not None:
+                    active_text = light.findtext("Active")
+                    if active_text is not None:
+                        #print("found active")
+                        active = int(active_text)
+                    else:
+                        print("fail")
+                        print(active)
+
+                    ## first file of the day shows light was already on, so we 
+                    ## don't kow when it was turned on. 
+                    if lightFlag == 0 and active != 0:
+                        lightFlag = 99999
+                        print("frston")
+                        print(active)
+                    
+                    ##light turned on in this file
+                    elif active > 0  and lightStatus is False:
+                        lightStatus = True
+                        lightOnTime = grabTime()
+                        print(lightOnTime)
+                        print("got light on!")
+
+                    ## light went off this file
+                    elif active == 0 and lightStatus is True:
+                        lightStatus = False
+                        lightOffTime = grabTime()
+                        print(lightOffTime)
+                        lightFlag = 100000
+
+                    #just advance the counter
+                    else:
+                        lightFlag = lightFlag + 1
+
+                    
+
+                else:
+                    print("Light element not found")
+                    lightFlag = 99999
 
         except Exception as e:
             print(f"Failed to process {filename}: {e}")
+
+    if lightStatus != 100000:
+        print("lightStatus failed")
 
     if outsideTemps:
         outsideHigh = max(outsideTemps)
