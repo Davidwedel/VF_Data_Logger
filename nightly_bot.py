@@ -14,7 +14,7 @@ def c_to_f(celsius):
 def kg_to_lb(kg):
     return kg * 2.20462
 
-def dohighandlowtemps(yesterdayFiles):
+def doProcessingOnAllFiles(yesterdayFiles):
     outsideTemps = []
     insideTemps = []
     for filename in glob.glob(yesterdayFiles):
@@ -228,7 +228,7 @@ formatted_yesterday = yesterdayDate.strftime("%m-%d-%Y")
 
 #parse all files from yesterday and average the outside temp
 #return outsideHigh, outsideLow, insideHigh, insideLow !!What gets returned!!
-databack = dohighandlowtemps(yesterdayFiles)
+databack = doProcessingOnAllFiles(yesterdayFiles)
 #print(databack)
 
 outsideHigh = c_to_f(databack[0])
