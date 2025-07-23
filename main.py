@@ -4,9 +4,15 @@ import glob
 import os
 import xml.etree.ElementTree as ET
 from datetime import date, timedelta, datetime
+from google.oauth2 import service_account
+from googleapiclient.discovery import build
+import json
 
 def c_to_f(celsius):
     return (celsius * 9/5) + 32
+
+def kg_to_lb(kg):
+    return kg * 2.20462
 
 def dohighandlowtemps(yesterdayFiles):
     outsideTemps = []
@@ -95,12 +101,36 @@ def deleteOldFiles(howmany):
                #print(f"Deleting: {filepath}")
                os.remove(filepath)
     return howManyDeleted
-        
+
+
+# Load secrets
+with open("secrets.json", "r") as f:
+    secrets = json.load(f)
+    
 #folder where XML files are stored (change if needed)
 xmlFolder = "../upload"
 
 #days. 0 never deletes
-howLongToSaveOldFiles = 2
+howLongToSaveOldFiles = 5
+
+##Google Sheets stuff
+
+# Path to your downloaded service account key
+SERVICE_ACCOUNT_FILE = 'credentials.json'
+
+# Scopes required for Sheets API
+SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
+
+SPREADSHEET_ID = secrets["spreadsheet_id"]
+
+RANGE_NAME = secrets["range_name"]
+
+# Authenticate with the service account
+creds = service_account.Credentials.from_service_account_file(
+    SERVICE_ACCOUNT_FILE, scopes=SCOPES)
+
+##End of Google Sheets stuff
+
 
 #start figuring various things we need to know
 
@@ -124,15 +154,58 @@ else:
 
 #end figuring various things we need to know
 
+#for the spreadsheet
+now = datetime.now()
+formatted_now = now.strftime("%m-%d-%Y %H:%M:%S")
+
+yesterdayDate = date.today() - timedelta(days=1)
+formatted_yesterday = yesterdayDate.strftime("%m-%d-%Y")
+
+
 #parse all files from yesterday and average the outside temp
 #return outsideHigh, outsideLow, insideHigh, insideLow !!What gets returned!!
 databack = dohighandlowtemps(yesterdayFiles)
-print(databack)
+#print(databack)
+
+outsideHigh = c_to_f(databack[0])
+outsideLow = c_to_f(databack[1])
+insideHigh = c_to_f(databack[2])
+insideLow = c_to_f(databack[3])
 
 #returns mortality, feed consumption, water consumption, average weight
 databack = everythingfromlastfile(last_yesterdayFile)
-print(databack)
+#print(databack)
+
+mortality = databack[0]
+feedConsumption = kg_to_lb(databack[1])
+waterConsumption = databack[2]
+avgWeight = kg_to_lb(databack[3])
 
 #delete all old files, so file doesn't fill up.
 howmanydeleted = deleteOldFiles(howLongToSaveOldFiles)
 #print(howmanydeleted)
+
+# Build the Sheets API client
+service = build('sheets', 'v4', credentials=creds)
+
+
+# Values to append (list of rows, each row is a list of columns)
+values = [
+    [formatted_now, formatted_yesterday, outsideHigh, outsideLow, insideHigh, insideLow, mortality, feedConsumption, waterConsumption, avgWeight]
+]
+
+body = {
+    'values': values
+}
+
+# Append the rows
+result = service.spreadsheets().values().append(
+    spreadsheetId=SPREADSHEET_ID,
+    range=RANGE_NAME,
+    valueInputOption='USER_ENTERED',  # or RAW
+    insertDataOption='INSERT_ROWS',
+    body=body
+).execute()
+
+print(f"{result.get('updates').get('updatedRows')} rows appended.")
+
