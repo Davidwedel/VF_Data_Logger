@@ -108,10 +108,10 @@ with open("secrets.json", "r") as f:
     secrets = json.load(f)
     
 #folder where XML files are stored (change if needed)
-xmlFolder = "../upload"
+xmlFolder = secrets["path_to_xmls"]
 
 #days. 0 never deletes
-howLongToSaveOldFiles = 5
+howLongToSaveOldFiles = secrets["how_long_to_save_old_files"]
 
 ##Google Sheets stuff
 
