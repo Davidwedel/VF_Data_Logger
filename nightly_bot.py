@@ -15,6 +15,10 @@ def kg_to_lb(kg):
     return kg * 2.20462
 
 def doProcessingOnAllFiles(yesterdayFiles):
+    lightStatus = False
+    lightOnTime = ""
+    lightOffTime = ""
+    lightFlag = 0
     outsideTemps = []
     insideTemps = []
     print(yesterdayFiles)
@@ -25,7 +29,7 @@ def doProcessingOnAllFiles(yesterdayFiles):
         return base.split('_')[0]  # '20250722225053'
 
     for filename in sorted(glob.glob(yesterdayFiles), key=extract_timestamp):
-        print(filename)
+        #print(filename)
         try: 
             tree = ET.parse(filename)
             root = tree.getroot()
@@ -41,6 +45,15 @@ def doProcessingOnAllFiles(yesterdayFiles):
             if temp_element is not None:
                 temp = float(temp_element.text)
                 insideTemps.append(temp)
+
+            ##light processing stuff
+            light = root.find(".//Light")
+            if light is not None:
+                active = light.findtext("Active")
+                print(active)
+            else:
+                print("Light element not found")
+
         except Exception as e:
             print(f"Failed to process {filename}: {e}")
 
