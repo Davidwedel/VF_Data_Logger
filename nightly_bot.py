@@ -102,9 +102,6 @@ def deleteOldFiles(howmany):
                os.remove(filepath)
     return howManyDeleted
 
-#t = getCoolerTemp(getCoolerTempAM, coolerTempTimeTolerance, xmlNameOnly)
-#coolerTempAM = t[0]
-#coolerTempTimeAM = t[1]
 def getCoolerTemp(theTime, theTolerance, theName):
 
     def grab_hr_min_frm_var(timevar):
@@ -149,12 +146,9 @@ def getCoolerTemp(theTime, theTolerance, theName):
         if (temp_element is not None) and (temp_element1 is not None):
             room_temp = float(temp_element.text)
             time_temp = temp_element1.text
-            print(room_temp)
-            print(time_temp)
             return time_temp, room_temp
             
         else:
-            print("2na")
             return 'NA', 'NA'
 
 
@@ -246,18 +240,12 @@ waterConsumption = databack[2]
 avgWeight = kg_to_lb(databack[3])
 
 t = getCoolerTemp(getCoolerTempAM, coolerTempTimeTolerance, xmlNameOnly)
-print(t)
 coolerTempTimeAM = t[0]
 coolerTempAM = c_to_f(t[1])
-print(coolerTempTimeAM)
-print(coolerTempAM)
 
 t = getCoolerTemp(getCoolerTempPM, coolerTempTimeTolerance, xmlNameOnly)
-print(t)
 coolerTempTimePM = t[0]
 coolerTempPM = c_to_f(t[1])
-print(coolerTempTimePM)
-print(coolerTempPM)
 
 # Build the Sheets API client
 service = build('sheets', 'v4', credentials=creds)
