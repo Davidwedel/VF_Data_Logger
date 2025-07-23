@@ -102,16 +102,80 @@ def deleteOldFiles(howmany):
                os.remove(filepath)
     return howManyDeleted
 
+#t = getCoolerTemp(getCoolerTempAM, coolerTempTimeTolerance, xmlNameOnly)
+#coolerTempAM = t[0]
+#coolerTempTimeAM = t[1]
+def getCoolerTemp(theTime, theTolerance, theName):
+
+    def grab_hr_min_frm_var(timevar):
+        var = timevar.strip().split(":")
+        target_hr = int(var[0])
+        target_min = int(var[1])
+        target_total_min = target_hr * 60 + target_min
+        return target_total_min
+
+    def extract_hour_min(filename):
+        timestamp_str = filename.split('_')[0]
+        time_part = timestamp_str[-6:]
+        hour = int(time_part[0:2])
+        minute = int(time_part[2:4])
+        return hour, minute
+
+    def diff_minutes(hm):
+        h, m = hm
+        total = h * 60 + m
+        return abs(total - target_total_minutes)
+
+
+    target_total_minutes = grab_hr_min_frm_var(theTime)
+    theTolerance = grab_hr_min_frm_var(theTolerance)
+
+    # Filter files within tolerance
+    candidates = [f for f in theName if diff_minutes(extract_hour_min(f)) <= theTolerance]
+
+    if not candidates:
+        return 'NA', 'NA'
+
+    # Return closest file among candidates
+    closest_file = min(candidates, key=lambda f: diff_minutes(extract_hour_min(f)))
+
+    try: 
+        tree = ET.parse(closest_file)
+        root = tree.getroot()
+
+        ##egg room temp stuff
+        temp_element = root.find(".//EggRoom")
+        temp_element1 = root.find(".//Time")
+        if (temp_element is not None) and (temp_element1 is not None):
+            room_temp = float(temp_element.text)
+            time_temp = temp_element1.text
+            print(room_temp)
+            print(time_temp)
+            return time_temp, room_temp
+            
+        else:
+            print("2na")
+            return 'NA', 'NA'
+
+
+    except Exception as e:
+        print(f"Failed to process {closest_file}: {e}")
+            
+
 
 # Load secrets
-with open("nightlysecrets.json", "r") as f:
+with open("nightly_secrets.json", "r") as f:
     secrets = json.load(f)
     
 #folder where XML files are stored (change if needed)
 xmlFolder = secrets["path_to_xmls"]
 
 #days. 0 never deletes
-howLongToSaveOldFiles = secrets["how_long_to_save_old_files"]
+howLongToSaveOldFiles = (secrets["how_long_to_save_old_files"] + 1)
+
+getCoolerTempAM = secrets["get_cooler_temp_AM"]
+getCoolerTempPM = secrets["get_cooler_temp_PM"]
+coolerTempTimeTolerance = secrets["cooler_temp_time_tolerance"]
 
 ##Google Sheets stuff
 
@@ -136,17 +200,17 @@ creds = service_account.Credentials.from_service_account_file(
 
 #get yesterday's date, as formatted in the xml filename I.E. YYYYMMDD(20250722)
 yesterday = (date.today() - timedelta(days=1)).strftime("%Y%m%d")
-#yesterday = date.today().strftime("%Y%m%d")
+yesterday = date.today().strftime("%Y%m%d")
 
 #print("Yesterday:" + yesterday)
 
 #file pattern to yesterday's files
 yesterdayFiles = os.path.join(xmlFolder, (yesterday+"*.xml"))
 
-matches = glob.glob(yesterdayFiles)
+xmlNameOnly = glob.glob(yesterdayFiles)
 
-if matches:
-    last_yesterdayFile = max(matches, key=lambda f: datetime.strptime(os.path.basename(f)[:14], "%Y%m%d%H%M%S"))
+if xmlNameOnly:
+    last_yesterdayFile = max(xmlNameOnly, key=lambda f: datetime.strptime(os.path.basename(f)[:14], "%Y%m%d%H%M%S"))
     #print("Last file from yesterday:", last_yesterdayFile)
 else:
     print("No files found for yesterday. Exiting...")
@@ -181,9 +245,19 @@ feedConsumption = kg_to_lb(databack[1])
 waterConsumption = databack[2]
 avgWeight = kg_to_lb(databack[3])
 
-#delete all old files, so file doesn't fill up.
-howmanydeleted = deleteOldFiles(howLongToSaveOldFiles)
-#print(howmanydeleted)
+t = getCoolerTemp(getCoolerTempAM, coolerTempTimeTolerance, xmlNameOnly)
+print(t)
+coolerTempTimeAM = t[0]
+coolerTempAM = c_to_f(t[1])
+print(coolerTempTimeAM)
+print(coolerTempAM)
+
+t = getCoolerTemp(getCoolerTempPM, coolerTempTimeTolerance, xmlNameOnly)
+print(t)
+coolerTempTimePM = t[0]
+coolerTempPM = c_to_f(t[1])
+print(coolerTempTimePM)
+print(coolerTempPM)
 
 # Build the Sheets API client
 service = build('sheets', 'v4', credentials=creds)
@@ -191,7 +265,7 @@ service = build('sheets', 'v4', credentials=creds)
 
 # Values to append (list of rows, each row is a list of columns)
 values = [
-    [formatted_now, formatted_yesterday, outsideHigh, outsideLow, insideHigh, insideLow, mortality, feedConsumption, waterConsumption, avgWeight]
+    [formatted_now, formatted_yesterday, "Nightly Log", outsideHigh, outsideLow, insideHigh, insideLow, mortality, feedConsumption, waterConsumption, avgWeight, coolerTempTimeAM, coolerTempAM, coolerTempTimePM, coolerTempPM]
 ]
 
 body = {
@@ -208,4 +282,8 @@ result = service.spreadsheets().values().append(
 ).execute()
 
 print(f"{result.get('updates').get('updatedRows')} rows appended.")
+
+#delete all old files, so file doesn't fill up.
+howmanydeleted = deleteOldFiles(howLongToSaveOldFiles)
+#print(howmanydeleted)
 
