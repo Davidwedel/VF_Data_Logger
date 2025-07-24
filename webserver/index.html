@@ -1,0 +1,320 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>XML Dashboard</title>
+<style>
+  /* Reset and base */
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0; padding: 20px;
+    background: #f0f2f5;
+    color: #333;
+  }
+  h1 {
+    text-align: center;
+    margin-bottom: 30px;
+    font-weight: 700;
+    color: #004085;
+  }
+  /* Container grid for all cards */
+  .dashboard {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  /* Each card panel */
+  .card {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgb(0 0 0 / 0.1);
+    display: flex;
+    flex-direction: column;
+  }
+  /* Card header with color bars */
+  .card-header {
+    background: #004085; /* dark blue */
+    color: white;
+    padding: 12px 16px;
+    font-weight: 700;
+    font-size: 1.2rem;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+  }
+  /* Card content area */
+  .card-content {
+    padding: 16px;
+    flex-grow: 1;
+  }
+  /* Key-value list */
+
+dl {
+  margin: 0;
+}
+
+dl > div {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 0;
+  border-bottom: 1px solid #eee; /* optional: line between rows */
+}
+
+dt {
+  font-weight: 600;
+  color: #555;
+  margin: 0;
+  /* width: 50%; */ /* optional fixed width */
+}
+
+dd {
+  margin: 0;
+  font-size: 1.05rem;
+  color: #222;
+  text-align: right;
+  min-width: 60px; /* minimum space for values */
+}
+  /* Highlight missing or not found */
+  .not-found {
+    color: #b02a37;
+    font-style: italic;
+  }
+
+  /* Responsive tweaks */
+  @media (max-width: 400px) {
+    dt {
+      font-size: 0.95rem;
+    }
+    dd {
+      font-size: 0.95rem;
+    }
+  }
+</style>
+</head>
+<body>
+
+<h1>Farm XML Dashboard</h1>
+
+<div class="dashboard" id="dashboard">
+  <!-- Cards injected here -->
+</div>
+
+<script>
+async function loadXML() {
+  const dash = document.getElementById('dashboard');
+
+  function createCard(title, fields) {
+    const card = document.createElement('section');
+    card.className = 'card';
+
+    const header = document.createElement('header');
+    header.className = 'card-header';
+    header.textContent = title;
+
+    const content = document.createElement('div');
+    content.className = 'card-content';
+
+    const dl = document.createElement('dl');
+
+
+	fields.forEach(({ label, path }) => {
+  		const row = document.createElement('div');  // new flex container for one row
+  		const dt = document.createElement('dt');
+	  	dt.textContent = label;
+  		const dd = document.createElement('dd');
+  		const val = getElementText(path);
+  		dd.textContent = val;
+  		if (val === '[not found]') dd.classList.add('not-found');
+  		row.appendChild(dt);
+  		row.appendChild(dd);
+  		dl.appendChild(row);
+	});
+
+    content.appendChild(dl);
+    card.appendChild(header);
+    card.appendChild(content);
+
+    return card;
+  }
+
+  // Load XML file and parse
+  try {
+    const resp = await fetch('data.xml');
+    if (!resp.ok) throw new Error('Failed to fetch XML');
+    const text = await resp.text();
+    const parser = new DOMParser();
+    window.xmlDoc = parser.parseFromString(text, 'application/xml');
+  } catch(e) {
+    dash.innerHTML = `<p style="color:#b02a37; font-weight:700;">Error loading data: ${e.message}</p>`;
+    return;
+  }
+
+  function getElementText(path) {
+    const parts = path.split(' > ');
+    let node = window.xmlDoc;
+    for (const part of parts) {
+      node = node.querySelector(part);
+      if (!node) return '[not found]';
+    }
+    return node.textContent.trim();
+  }
+
+  // Define all cards and their fields here:
+  const cards = [
+    {
+      title: 'Headers',
+      fields: [
+        { label: 'Farm Name', path: 'XMLExport > Headers > FarmName' },
+        { label: 'Time', path: 'XMLExport > Headers > TimeStamp' }
+      ]
+    },
+    {
+      title: 'Temperature Sensors',
+      fields: [
+        { label: 'Tunnel', path: 'XMLExport > TempSensor > Tunnel' },
+        { label: 'Wind Chill', path: 'XMLExport > TempSensor > WChill' },
+        { label: 'Egg Room', path: 'XMLExport > TempSensor > EggRoom' },
+        { label: 'Temp1', path: 'XMLExport > TempSensor > Temp1' },
+        { label: 'Temp2', path: 'XMLExport > TempSensor > Temp2' },
+        { label: 'Temp3', path: 'XMLExport > TempSensor > Temp3' },
+        { label: 'Temp4', path: 'XMLExport > TempSensor > Temp4' },
+        { label: 'Temp5', path: 'XMLExport > TempSensor > Temp5' },
+        { label: 'Temp6', path: 'XMLExport > TempSensor > Temp6' },
+        { label: 'Temp7', path: 'XMLExport > TempSensor > Temp7' },
+        { label: 'Temp8', path: 'XMLExport > TempSensor > Temp8' },
+        { label: 'Ammonia', path: 'XMLExport > TempSensor > Ammonia' }
+      ]
+    },
+    {
+      title: 'General',
+      fields: [
+        { label: 'Growth Day', path: 'XMLExport > General > GrowthDay' },
+        { label: 'Is Feeding', path: 'XMLExport > General > IsFeeding' },
+        { label: 'Set Temperature', path: 'XMLExport > General > SetTemperature' },
+        { label: 'Offset', path: 'XMLExport > General > Offset' },
+        { label: 'Target Pressure', path: 'XMLExport > General > TargetPressure' },
+        { label: 'Cycle Time', path: 'XMLExport > General > CycleTime' },
+        { label: 'Cycle Next', path: 'XMLExport > General > CycleNext' },
+        { label: 'Daily Consumption', path: 'XMLExport > General > DailyConsumption' },
+        { label: 'FCR', path: 'XMLExport > General > FCR' },
+        { label: 'CFM', path: 'XMLExport > General > CFM' },
+        { label: 'Birds', path: 'XMLExport > General > Birds' },
+        { label: 'Livability', path: 'XMLExport > General > Livability' },
+        { label: 'House Connection Status', path: 'XMLExport > General > HouseConnectionStatus' },
+        { label: 'THI', path: 'XMLExport > General > THI' },
+        { label: 'Average Temperature', path: 'XMLExport > General > AverageTemperature' },
+        { label: 'Outside Temperature', path: 'XMLExport > General > OutsideTemperature' },
+        { label: 'Inside Humidity', path: 'XMLExport > General > InsideHumidity' },
+        { label: 'CO2', path: 'XMLExport > General > CO2' },
+        { label: 'Static Pressure', path: 'XMLExport > General > StaticPressure' }
+      ]
+    },
+    {
+      title: 'Mortality',
+      fields: [
+        { label: 'Total Daily Male Mortality', path: 'XMLExport > General > TotalDailyMaleMortality' },
+        { label: 'Total Daily Female Mortality', path: 'XMLExport > General > TotalDailyFemaleMortality' },
+        { label: 'Total Daily Male Cult', path: 'XMLExport > General > TotalDailyMaleCult' },
+        { label: 'Total Daily Female Cult', path: 'XMLExport > General > TotalDailyFemaleCult' }
+      ]
+    },
+    {
+      title: 'Consumption',
+      fields: [
+        { label: 'WOD Pressure', path: 'XMLExport > Consumption > WODPressure' },
+        { label: 'Daily Water', path: 'XMLExport > Consumption > DailyWater' },
+        { label: 'Daily Feed', path: 'XMLExport > Consumption > DailyFeed' },
+        { label: 'Daily Water Feed Rate', path: 'XMLExport > Consumption > DailyWaterFeedRate' }
+      ]
+    },
+    {
+      title: 'Average Weight',
+      fields: [
+        { label: 'Average Weight', path: 'XMLExport > AvgWeight > AverageWeight' },
+        { label: 'Number Of Weights', path: 'XMLExport > AvgWeight > NumberOfWeights' }
+      ]
+    },
+    {
+      title: 'Feed Inventory',
+      fields: [
+        { label: 'Silo 1', path: 'XMLExport > FeedInv > Silo1' },
+        { label: 'Silo 2', path: 'XMLExport > FeedInv > Silo2' }
+      ]
+    },
+    {
+      title: 'Digital Out',
+      fields: [
+        { label: 'Heaters Active', path: 'XMLExport > DigitalOut > Heaters > Active' },
+        { label: 'Heaters Installed', path: 'XMLExport > DigitalOut > Heaters > Installed' },
+        { label: 'Tunnel Fans Active', path: 'XMLExport > DigitalOut > Tunnel_Fans > Active' },
+        { label: 'Tunnel Fans Installed', path: 'XMLExport > DigitalOut > Tunnel_Fans > Installed' },
+        { label: 'Exhaust Fans Active', path: 'XMLExport > DigitalOut > Exh_Fans > Active' },
+        { label: 'Exhaust Fans Installed', path: 'XMLExport > DigitalOut > Exh_Fans > Installed' },
+        { label: 'Stir Fans Active', path: 'XMLExport > DigitalOut > Stir_Fans > Active' },
+        { label: 'Stir Fans Installed', path: 'XMLExport > DigitalOut > Stir_Fans > Installed' },
+        { label: 'Cooling Pad Active', path: 'XMLExport > DigitalOut > Cooling_Pad > Active' },
+        { label: 'Cooling Pad Installed', path: 'XMLExport > DigitalOut > Cooling_Pad > Installed' },
+        { label: 'Light Active', path: 'XMLExport > DigitalOut > Light > Active' },
+        { label: 'Light Installed', path: 'XMLExport > DigitalOut > Light > Installed' },
+        { label: 'Feeding Active', path: 'XMLExport > DigitalOut > Feeding > Active' },
+        { label: 'Feeding Installed', path: 'XMLExport > DigitalOut > Feeding > Installed' },
+        { label: 'Auger Active', path: 'XMLExport > DigitalOut > Auger > Active' },
+        { label: 'Auger Installed', path: 'XMLExport > DigitalOut > Auger > Installed' },
+        { label: 'Water Line Active', path: 'XMLExport > DigitalOut > Water_Line > Active' },
+        { label: 'Water Line Installed', path: 'XMLExport > DigitalOut > Water_Line > Installed' }
+      ]
+    },
+    {
+      title: 'Analog Out',
+      fields: [
+        { label: 'Air Vent 1 Position', path: 'XMLExport > AnalogOut > AirVent1Position' },
+        { label: 'Tunnel Curtain 1 Position', path: 'XMLExport > AnalogOut > TunnelCurtain1Position' },
+        { label: 'Curtain 1 Position', path: 'XMLExport > AnalogOut > Curtain1Position' },
+        { label: 'Curtain 2 Position', path: 'XMLExport > AnalogOut > Curtain2Position' },
+        { label: 'Light 1', path: 'XMLExport > AnalogOut > Light1' },
+        { label: 'Light 2', path: 'XMLExport > AnalogOut > Light2' }
+      ]
+    },
+    {
+      title: 'History Temperature',
+      fields: [
+        { label: 'Last 24 Hour Temperature AVG', path: 'XMLExport > HistoryTemp > Last24HourTemperatureAVG' },
+        { label: 'Last 24 Hour Temperature TARGET', path: 'XMLExport > HistoryTemp > Last24HourTemperatureTARGET' }
+      ]
+    },
+    {
+      title: 'History Weight',
+      fields: [
+        { label: 'Last 10 Day Avg Bird Weight AVG', path: 'XMLExport > HistoryWeight > Last10DayAvgBirdWeightAVG' },
+        { label: 'Last 10 Day Avg Bird Weight TARGET', path: 'XMLExport > HistoryWeight > Last10DayAvgBirdWeightTARGET' }
+      ]
+    },
+    {
+      title: 'Silo 1 Details',
+      fields: [
+        { label: 'Daily Feed', path: 'XMLExport > Silo1 > DailyFeed' },
+        { label: 'Auger', path: 'XMLExport > Silo1 > Auger' }
+      ]
+    },
+    {
+      title: 'Silo 2 Details',
+      fields: [
+        { label: 'Silo 2', path: 'XMLExport > Silo2' }
+      ]
+    }
+  ];
+
+  cards.forEach(cardInfo => {
+    const card = createCard(cardInfo.title, cardInfo.fields);
+    dash.appendChild(card);
+  });
+}
+
+loadXML();
+</script>
+
+</body>
+</html>
