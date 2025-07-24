@@ -1,4 +1,4 @@
-*.swp
+*.sw*
 secrets.json
 nightly_secrets.json
 credentials.json
