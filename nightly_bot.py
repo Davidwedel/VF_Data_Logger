@@ -58,7 +58,7 @@ def doProcessingOnAllFiles(yesterdayFiles):
                     tm = datetime.strptime(tm, "%Y/%m/%d %H:%M:%S").replace(tzinfo=ZoneInfo("UTC"))
 
                     # Convert to local time (e.g., America/Chicago)
-                    tm_local = tm.astimezone(ZoneInfo("America/Chicago"))
+                    tm_local = tm.astimezone(ZoneInfo(time_zone))
                     tm_local = tm_local.strftime("%H:%M:%S")
 
                     return tm_local
@@ -208,7 +208,7 @@ def getCoolerTemp(theTime, theTolerance, theName):
     candidates = [f for f in theName if diff_minutes(extract_hour_min(f)) <= theTolerance]
 
     if not candidates:
-        return 'NA', 'NA'
+        return '=NA()', '=NA()'
 
     # Return closest file among candidates
     closest_file = min(candidates, key=lambda f: diff_minutes(extract_hour_min(f)))
@@ -226,7 +226,7 @@ def getCoolerTemp(theTime, theTolerance, theName):
             return time_temp, room_temp
             
         else:
-            return 'NA', 'NA'
+            return '=NA()', '=NA()'
 
 
     except Exception as e:
@@ -247,6 +247,7 @@ howLongToSaveOldFiles = (secrets["how_long_to_save_old_files"] + 1)
 getCoolerTempAM = secrets["get_cooler_temp_AM"]
 getCoolerTempPM = secrets["get_cooler_temp_PM"]
 coolerTempTimeTolerance = secrets["cooler_temp_time_tolerance"]
+time_zone = secrets["time_zone"]
 
 ##Google Sheets stuff
 
