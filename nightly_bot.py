@@ -168,16 +168,17 @@ def deleteOldFiles(howmany):
     if howmany == 0:
         print("File Deletion shut off!")
     else:
-       day2Delete = (date.today() - timedelta(days=howmany)).strftime("%Y%m%d")
        howManyDeleted = 0
-       print(f"Deleting files!")
+       day2Delete = (date.today() - timedelta(days=howmany)).strftime("%Y%m%d")
+       print(f"Deleting files from day {day2Delete}!")
        for filename in os.listdir(xmlFolder):
            if filename.endswith(".xml") and filename[:8] <= day2Delete:
                howManyDeleted = howManyDeleted + 1
                filepath = os.path.join(xmlFolder, filename)
                #print(f"Deleting: {filepath}")
                os.remove(filepath)
-    return howManyDeleted
+
+       print(f"Deleted {howManyDeleted} XML files!")
 
 def getCoolerTemp(theTime, theTolerance, theName):
 
@@ -242,7 +243,7 @@ with open("secrets.json", "r") as f:
 xmlFolder = secrets["path_to_xmls"]
 
 #days. 0 never deletes
-howLongToSaveOldFiles = (secrets["how_long_to_save_old_files"] + 1)
+howLongToSaveOldFiles = secrets["how_long_to_save_old_files"]
 
 getCoolerTempAM = secrets["get_cooler_temp_AM"]
 getCoolerTempPM = secrets["get_cooler_temp_PM"]
@@ -272,7 +273,7 @@ creds = service_account.Credentials.from_service_account_file(
 
 #get yesterday's date, as formatted in the xml filename I.E. YYYYMMDD(20250722)
 yesterday = (date.today() - timedelta(days=1)).strftime("%Y%m%d")
-yesterday = date.today().strftime("%Y%m%d")
+#yesterday = date.today().strftime("%Y%m%d")
 
 #print("Yesterday:" + yesterday)
 
@@ -283,7 +284,6 @@ xmlNameOnly = glob.glob(yesterdayFiles)
 
 if xmlNameOnly:
     last_yesterdayFile = max(xmlNameOnly, key=lambda f: datetime.strptime(os.path.basename(f)[:14], "%Y%m%d%H%M%S"))
-    #print("Last file from yesterday:", last_yesterdayFile)
 else:
     print("No files found for yesterday. Exiting...")
     exit()
@@ -352,6 +352,5 @@ result = service.spreadsheets().values().append(
 print(f"{result.get('updates').get('updatedRows')} rows appended.")
 
 #delete all old files, so file doesn't fill up.
-howmanydeleted = deleteOldFiles(howLongToSaveOldFiles)
-#print(howmanydeleted)
+deleteOldFiles(howLongToSaveOldFiles)
 
