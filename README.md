@@ -75,3 +75,7 @@ This will:
 ## Information
 You will need to set your Rotem to log XML files to your FTP server. <br>
 Add the script to cron to run sometime after midnight.
+
+## License
+
+This project is licensed under the GNU GPLv3 License. See the [LICENSE](./LICENSE) file for details.
