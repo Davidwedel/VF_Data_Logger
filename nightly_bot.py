@@ -235,7 +235,7 @@ def getCoolerTemp(theTime, theTolerance, theName):
 
 
 # Load secrets
-with open("nightly_secrets.json", "r") as f:
+with open("secrets.json", "r") as f:
     secrets = json.load(f)
     
 #folder where XML files are stored (change if needed)
