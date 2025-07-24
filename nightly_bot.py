@@ -7,6 +7,7 @@ from datetime import date, timedelta, datetime
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
 import json
+from zoneinfo import ZoneInfo
 
 def c_to_f(celsius):
     return (celsius * 9/5) + 32
@@ -16,12 +17,11 @@ def kg_to_lb(kg):
 
 def doProcessingOnAllFiles(yesterdayFiles):
     lightStatus = False
-    lightOnTime = ""
-    lightOffTime = ""
+    lightOnTime = "=NA()"
+    lightOffTime = "=NA()"
     lightFlag = 0
     outsideTemps = []
     insideTemps = []
-    #print(yesterdayFiles)
 
     def extract_timestamp(filename):
         # Assumes filenames like: 20250722225053_...
@@ -29,7 +29,6 @@ def doProcessingOnAllFiles(yesterdayFiles):
         return base.split('_')[0]  # '20250722225053'
 
     for filename in sorted(glob.glob(yesterdayFiles), key=extract_timestamp):
-        #print(filename)
         try: 
             tree = ET.parse(filename)
             root = tree.getroot()
@@ -46,18 +45,23 @@ def doProcessingOnAllFiles(yesterdayFiles):
                 temp = float(temp_element.text)
                 insideTemps.append(temp)
 
+            ## Light on and off calcs
             ## 99999 means a failure, 100000 means total success, so no reason 
             ## to continue calculations
             if lightFlag < 99999:
 
                 ##light processing stuff
                 light = root.find(".//Light")
+
                 def grabTime():
                     tm = root.find(".//Headers/TimeStamp").text
-                    print(tm)
-                    ##convert to datetime
-                    tm = datetime.strptime(tm, "%Y/%m/%d %H:%M:%S")
-                    return tm.time()
+                    tm = datetime.strptime(tm, "%Y/%m/%d %H:%M:%S").replace(tzinfo=ZoneInfo("UTC"))
+
+                    # Convert to local time (e.g., America/Chicago)
+                    tm_local = tm.astimezone(ZoneInfo("America/Chicago"))
+                    tm_local = tm_local.strftime("%H:%M:%S")
+
+                    return tm_local
 
                 if light is not None:
                     active_text = light.findtext("Active")
@@ -72,21 +76,17 @@ def doProcessingOnAllFiles(yesterdayFiles):
                     ## don't kow when it was turned on. 
                     if lightFlag == 0 and active != 0:
                         lightFlag = 99999
-                        print("frston")
-                        print(active)
+                        print("First file showed light on. Error")
                     
                     ##light turned on in this file
                     elif active > 0  and lightStatus is False:
                         lightStatus = True
                         lightOnTime = grabTime()
-                        print(lightOnTime)
-                        print("got light on!")
 
                     ## light went off this file
                     elif active == 0 and lightStatus is True:
                         lightStatus = False
                         lightOffTime = grabTime()
-                        print(lightOffTime)
                         lightFlag = 100000
 
                     #just advance the counter
@@ -96,30 +96,38 @@ def doProcessingOnAllFiles(yesterdayFiles):
                     
 
                 else:
-                    print("Light element not found")
-                    lightFlag = 99999
+                    print("Light element not found in XML file ", filename)
+
+            ## end of light on and off calcs
 
         except Exception as e:
             print(f"Failed to process {filename}: {e}")
 
-    if lightStatus != 100000:
-        print("lightStatus failed")
+    ## verify that our light data is good 
+    if lightStatus is True:
+        print("LightStatus Failure. Light was on in last file")
+
+    elif lightFlag != 100000:
+        print("lightFlag failed")
+        print("LightFlag: ", lightFlag)
+
+    ## end of verify light data
 
     if outsideTemps:
         outsideHigh = max(outsideTemps)
         outsideLow = min (outsideTemps)
 
     else:
-        print(f"Something failed in Outside!")
+        print(f"Something failed in Outside Temps!")
 
     if insideTemps:
         insideHigh = max(insideTemps)
         insideLow = min (insideTemps)
 
     else:
-        print(f"Something failed in Inside!")
+        print(f"Something failed in Inside! Temps")
 
-    return outsideHigh, outsideLow, insideHigh, insideLow
+    return outsideHigh, outsideLow, insideHigh, insideLow, lightOnTime, lightOffTime
    
 def everythingfromlastfile(last_yesterdayFile):
         datawesendback = []
@@ -298,6 +306,8 @@ outsideHigh = c_to_f(databack[0])
 outsideLow = c_to_f(databack[1])
 insideHigh = c_to_f(databack[2])
 insideLow = c_to_f(databack[3])
+lightOnTime = databack[4]
+lightOffTime = databack[5]
 
 #returns mortality, feed consumption, water consumption, average weight
 databack = everythingfromlastfile(last_yesterdayFile)
@@ -322,7 +332,7 @@ service = build('sheets', 'v4', credentials=creds)
 
 # Values to append (list of rows, each row is a list of columns)
 values = [
-    [formatted_now, formatted_yesterday, "Nightly Log", outsideHigh, outsideLow, insideHigh, insideLow, mortality, feedConsumption, waterConsumption, avgWeight, coolerTempTimeAM, coolerTempAM, coolerTempTimePM, coolerTempPM]
+    [formatted_now, formatted_yesterday, "Nightly Log", outsideHigh, outsideLow, insideHigh, insideLow, mortality, feedConsumption, waterConsumption, avgWeight, coolerTempTimeAM, coolerTempAM, coolerTempTimePM, coolerTempPM, lightOnTime, lightOffTime]
 ]
 
 body = {
