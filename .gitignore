@@ -2,3 +2,5 @@
 secrets.json
 nightly_secrets.json
 credentials.json
+latest.xml
+./corrupt_files/*

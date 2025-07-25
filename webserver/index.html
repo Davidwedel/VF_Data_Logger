@@ -103,67 +103,23 @@ dd {
 </div>
 
 <script>
-async function loadXML() {
-  const dash = document.getElementById('dashboard');
+const POLL_MS = 5000; // how often to check for a new latest.xml
+let lastXMLText = null;
 
-  function createCard(title, fields) {
-    const card = document.createElement('section');
-    card.className = 'card';
+async function fetchLatestXML() {
+  // cache-buster so the browser doesn't serve a cached copy
+  const resp = await fetch('latest.xml?ts=' + Date.now());
+  if (!resp.ok) throw new Error('Failed to fetch latest.xml');
+  return await resp.text();
+}
 
-    const header = document.createElement('header');
-    header.className = 'card-header';
-    header.textContent = title;
+function parseXML(xmlText) {
+  const parser = new DOMParser();
+  return parser.parseFromString(xmlText, 'application/xml');
+}
 
-    const content = document.createElement('div');
-    content.className = 'card-content';
-
-    const dl = document.createElement('dl');
-
-
-	fields.forEach(({ label, path }) => {
-  		const row = document.createElement('div');  // new flex container for one row
-  		const dt = document.createElement('dt');
-	  	dt.textContent = label;
-  		const dd = document.createElement('dd');
-  		const val = getElementText(path);
-  		dd.textContent = val;
-  		if (val === '[not found]') dd.classList.add('not-found');
-  		row.appendChild(dt);
-  		row.appendChild(dd);
-  		dl.appendChild(row);
-	});
-
-    content.appendChild(dl);
-    card.appendChild(header);
-    card.appendChild(content);
-
-    return card;
-  }
-
-  // Load XML file and parse
-  try {
-    const resp = await fetch('data.xml');
-    if (!resp.ok) throw new Error('Failed to fetch XML');
-    const text = await resp.text();
-    const parser = new DOMParser();
-    window.xmlDoc = parser.parseFromString(text, 'application/xml');
-  } catch(e) {
-    dash.innerHTML = `<p style="color:#b02a37; font-weight:700;">Error loading data: ${e.message}</p>`;
-    return;
-  }
-
-  function getElementText(path) {
-    const parts = path.split(' > ');
-    let node = window.xmlDoc;
-    for (const part of parts) {
-      node = node.querySelector(part);
-      if (!node) return '[not found]';
-    }
-    return node.textContent.trim();
-  }
-
-  // Define all cards and their fields here:
-  const cards = [
+function buildCardsSpec() {
+  return [
     {
       title: 'Headers',
       fields: [
@@ -306,14 +262,80 @@ async function loadXML() {
       ]
     }
   ];
+}
+
+function getElementText(xmlDoc, path) {
+  const parts = path.split(' > ');
+  let node = xmlDoc;
+  for (const part of parts) {
+    node = node.querySelector(part);
+    if (!node) return '[not found]';
+  }
+  return node.textContent.trim();
+}
+
+function createCard(title, fields, xmlDoc) {
+  const card = document.createElement('section');
+  card.className = 'card';
+
+  const header = document.createElement('header');
+  header.className = 'card-header';
+  header.textContent = title;
+
+  const content = document.createElement('div');
+  content.className = 'card-content';
+
+  const dl = document.createElement('dl');
+
+  fields.forEach(({ label, path }) => {
+    const row = document.createElement('div');
+    const dt = document.createElement('dt');
+    dt.textContent = label;
+    const dd = document.createElement('dd');
+    const val = getElementText(xmlDoc, path);
+    dd.textContent = val;
+    if (val === '[not found]') dd.classList.add('not-found');
+    row.appendChild(dt);
+    row.appendChild(dd);
+    dl.appendChild(row);
+  });
+
+  content.appendChild(dl);
+  card.appendChild(header);
+  card.appendChild(content);
+  return card;
+}
+
+function renderDashboard(xmlText) {
+  const dash = document.getElementById('dashboard');
+  dash.innerHTML = ""; // clear
+
+  const xmlDoc = parseXML(xmlText);
+  const cards = buildCardsSpec();
 
   cards.forEach(cardInfo => {
-    const card = createCard(cardInfo.title, cardInfo.fields);
+    const card = createCard(cardInfo.title, cardInfo.fields, xmlDoc);
     dash.appendChild(card);
   });
 }
 
-loadXML();
+async function refreshLoop() {
+  try {
+    const xmlText = await fetchLatestXML();
+    if (xmlText !== lastXMLText) {
+      lastXMLText = xmlText;
+      renderDashboard(xmlText);
+    }
+  } catch (e) {
+    const dash = document.getElementById('dashboard');
+    dash.innerHTML = `<p style="color:#b02a37; font-weight:700;">Error loading data: ${e.message}</p>`;
+  } finally {
+    setTimeout(refreshLoop, POLL_MS);
+  }
+}
+
+// Kick it off
+refreshLoop();
 </script>
 
 </body>
