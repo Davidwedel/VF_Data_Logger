@@ -70,14 +70,18 @@ def login(driver):
     password_box.send_keys(PASSWORD)
     login_btn = click_when_clickable(driver, By.CSS_SELECTOR, "button[type='submit']")
     login_btn.click()
-    print("Logged in")
     WebDriverWait(driver, TIMEOUT).until_not(EC.url_contains("/login"))
-    WebDriverWait(driver, 1000)
+    print("Logged in")
 
 def open_production_page(driver, farm_id: int, house_id: int):
     url = PRODUCTION_URL_TMPL.format(farm_id=farm_id, house_id=house_id)
     driver.get(url)
-    wait(driver, By.XPATH, "//h1[contains(., 'Production')]")
+    ## wait until page loaded
+    WebDriverWait(driver, 10).until(
+        EC.presence_of_element_located((By.CSS_SELECTOR, ".px-4.py-5"))
+    )
+
+    print("Production page opened")
 
 def fill_production_form(driver, data: dict):
     for label, value in data.items():
