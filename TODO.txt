@@ -1,0 +1,2 @@
+Implement logging to log.txt
+Implement Telegram bot for warnings
