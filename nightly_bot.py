@@ -102,6 +102,7 @@ def doProcessingOnAllFiles(yesterdayFiles):
 
         except Exception as e:
             print(f"Failed to process {filename}: {e}")
+            shutil.copy(str(filename),str(failed_dir/filename.name
 
     ## verify that our light data is good 
     if lightStatus is True:
@@ -241,6 +242,9 @@ with open("secrets.json", "r") as f:
     
 #folder where XML files are stored (change if needed)
 xmlFolder = secrets["path_to_xmls"]
+
+#folder to store the failed xmls for diagnostics
+failed_dir = "./corrupt_files"
 
 #days. 0 never deletes
 howLongToSaveOldFiles = secrets["how_long_to_save_old_files"]
