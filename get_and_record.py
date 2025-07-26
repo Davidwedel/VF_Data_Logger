@@ -83,6 +83,16 @@ def open_production_page(driver, farm_id: int, house_id: int):
 
     print("Production page opened")
 
+def get_yesterdays_form(driver, timeout):
+    wait = WebDriverWait(driver, timeout)
+    target = wait.until(EC.element_to_be_clickable((
+        By.XPATH,
+        "(//li[@data-cy='list-item' and @aria-label='daily'])[2]"
+    )))
+    target.click()
+    print("Opened Yesterday's form.")
+    WebDriverWait(driver, 10000)
+
 def fill_production_form(driver, data: dict):
     for label, value in data.items():
         input_by_label_text(driver, label, value)
@@ -99,6 +109,7 @@ def main():
     try:
         login(driver)
         open_production_page(driver, FARM_ID, HOUSE_ID)
+        get_yesterdays_form(driver, TIMEOUT)
         data = {
             "Date": "2025-07-24",
             "Eggs collected": 12345,
