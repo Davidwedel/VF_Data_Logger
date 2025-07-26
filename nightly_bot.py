@@ -11,6 +11,15 @@ from googleapiclient.discovery import build
 import json
 from zoneinfo import ZoneInfo
 
+def round_hhmm_to_15(s: str) -> str:
+    h, m = map(int, s.split(":"))
+    total = h * 60 + m
+    rounded = round(total / 15) * 15
+    rounded %= 24 * 60                     # wrap past midnight
+    return f"{rounded // 60:02d}:{rounded % 60:02d}"
+
+
+
 def grab_hr_min_frm_var(timevar):
     var = timevar.strip().split(":")
     target_hr = int(var[0])
@@ -79,7 +88,7 @@ def doProcessingOnAllFiles(yesterdayFiles):
 
                     # Convert to local time (e.g., America/Chicago)
                     tm_local = tm.astimezone(ZoneInfo(time_zone))
-                    tm_local = tm_local.strftime("%H:%M:%S")
+                    tm_local = tm_local.strftime("%H:%M")
 
                     return tm_local
 
@@ -327,8 +336,8 @@ outsideHigh = c_to_f(databack[0])
 outsideLow = c_to_f(databack[1])
 insideHigh = c_to_f(databack[2])
 insideLow = c_to_f(databack[3])
-lightOnTime = databack[4]
-lightOffTime = databack[5]
+lightOnTime = round_hhmm_to_15(databack[4])
+lightOffTime = round_hhmm_to_15(databack[5])
 
 #returns mortality, feed consumption, water consumption, average weight
 databack = everythingfromlastfile(last_yesterdayFile)
@@ -340,11 +349,11 @@ waterConsumption = databack[2]
 avgWeight = kg_to_lb(databack[3])
 
 t = getCoolerTemp(getCoolerTempAM, coolerTempTimeTolerance, xmlNameOnly)
-coolerTempTimeAM = t[0]
+coolerTempTimeAM = round_hhmm_to_15(t[0])
 coolerTempAM = c_to_f(t[1])
 
 t = getCoolerTemp(getCoolerTempPM, coolerTempTimeTolerance, xmlNameOnly)
-coolerTempTimePM = t[0]
+coolerTempTimePM = round_hhmm_to_15(t[0])
 coolerTempPM = c_to_f(t[1])
 
 # Build the Sheets API client
@@ -359,6 +368,7 @@ values = [
 body = {
     'values': values
 }
+
 
 if args.donotsend:
     print("Dry Run! Sending Disabled!")
