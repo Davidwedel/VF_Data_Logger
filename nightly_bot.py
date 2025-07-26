@@ -1,4 +1,5 @@
 import csv
+import shutil
 import requests
 import glob
 import os
@@ -37,13 +38,17 @@ def doProcessingOnAllFiles(yesterdayFiles):
             temp_element = root.find(".//OutsideTemperature")
             if temp_element is not None:
                 temp = float(temp_element.text)
-                outsideTemps.append(temp)
+                ## -9999 is bogus data
+                if temp != -9999:
+                    outsideTemps.append(temp)
                 
             ##inside temp stuff
             temp_element = root.find(".//AverageTemperature")
             if temp_element is not None:
                 temp = float(temp_element.text)
-                insideTemps.append(temp)
+                ## -9999 is bogus data
+                if temp != -9999:
+                    insideTemps.append(temp)
 
             ## Light on and off calcs
             ## 99999 means a failure, 100000 means total success, so no reason 
@@ -102,7 +107,8 @@ def doProcessingOnAllFiles(yesterdayFiles):
 
         except Exception as e:
             print(f"Failed to process {filename}: {e}")
-            shutil.copy(str(filename),str(failed_dir/filename.name
+            dst = os.path.join(failed_dir, os.path.basename(filename))
+            shutil.copy(filename, dst)
 
     ## verify that our light data is good 
     if lightStatus is True:
