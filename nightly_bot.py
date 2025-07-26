@@ -10,6 +10,20 @@ from googleapiclient.discovery import build
 import json
 from zoneinfo import ZoneInfo
 
+def grab_hr_min_frm_var(timevar):
+    var = timevar.strip().split(":")
+    target_hr = int(var[0])
+    target_min = int(var[1])
+    target_total_min = target_hr * 60 + target_min
+    return target_total_min
+
+def extract_hour_min_from_filename(filename):
+    timestamp_str = filename.split('_')[0]
+    time_part = timestamp_str[-6:]
+    hour = int(time_part[0:2])
+    minute = int(time_part[2:4])
+    return hour, minute
+
 def c_to_f(celsius):
     return (celsius * 9/5) + 32
 
@@ -189,20 +203,6 @@ def deleteOldFiles(howmany):
 
 def getCoolerTemp(theTime, theTolerance, theName):
 
-    def grab_hr_min_frm_var(timevar):
-        var = timevar.strip().split(":")
-        target_hr = int(var[0])
-        target_min = int(var[1])
-        target_total_min = target_hr * 60 + target_min
-        return target_total_min
-
-    def extract_hour_min(filename):
-        timestamp_str = filename.split('_')[0]
-        time_part = timestamp_str[-6:]
-        hour = int(time_part[0:2])
-        minute = int(time_part[2:4])
-        return hour, minute
-
     def diff_minutes(hm):
         h, m = hm
         total = h * 60 + m
@@ -213,13 +213,13 @@ def getCoolerTemp(theTime, theTolerance, theName):
     theTolerance = grab_hr_min_frm_var(theTolerance)
 
     # Filter files within tolerance
-    candidates = [f for f in theName if diff_minutes(extract_hour_min(f)) <= theTolerance]
+    candidates = [f for f in theName if diff_minutes(extract_hour_min_from_filename(f)) <= theTolerance]
 
     if not candidates:
         return '=NA()', '=NA()'
 
     # Return closest file among candidates
-    closest_file = min(candidates, key=lambda f: diff_minutes(extract_hour_min(f)))
+    closest_file = min(candidates, key=lambda f: diff_minutes(extract_hour_min_from_filename(f)))
 
     try: 
         tree = ET.parse(closest_file)
