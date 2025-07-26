@@ -1,4 +1,5 @@
 import csv
+import argparse
 import shutil
 import requests
 import glob
@@ -240,6 +241,15 @@ def getCoolerTemp(theTime, theTolerance, theName):
     except Exception as e:
         print(f"Failed to process {closest_file}: {e}")
             
+##handle arguments
+parser = argparse.ArgumentParser()
+
+parser.add_argument(
+    '--donotsend', '-N',
+    action='store_true',
+    help='Do everything except actually send.'
+)
+args = parser.parse_args()
 
 
 # Load secrets
@@ -350,16 +360,19 @@ body = {
     'values': values
 }
 
-# Append the rows
-result = service.spreadsheets().values().append(
-    spreadsheetId=SPREADSHEET_ID,
-    range=RANGE_NAME,
-    valueInputOption='USER_ENTERED',  # or RAW
-    insertDataOption='INSERT_ROWS',
-    body=body
-).execute()
+if args.donotsend:
+    print("Dry Run! Sending Disabled!")
+else:
+    # Append the rows
+    result = service.spreadsheets().values().append(
+        spreadsheetId=SPREADSHEET_ID,
+        range=RANGE_NAME,
+        valueInputOption='USER_ENTERED',  # or RAW
+        insertDataOption='INSERT_ROWS',
+        body=body
+    ).execute()
 
-print(f"{result.get('updates').get('updatedRows')} rows appended.")
+    print(f"{result.get('updates').get('updatedRows')} rows appended.")
 
 #delete all old files, so file doesn't fill up.
 deleteOldFiles(howLongToSaveOldFiles)
