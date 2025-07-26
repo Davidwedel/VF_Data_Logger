@@ -85,13 +85,21 @@ def open_production_page(driver, farm_id: int, house_id: int):
 
 def get_yesterdays_form(driver, timeout):
     wait = WebDriverWait(driver, timeout)
+
     target = wait.until(EC.element_to_be_clickable((
         By.XPATH,
         "(//li[@data-cy='list-item' and @aria-label='daily'])[2]"
     )))
     target.click()
-    print("Opened Yesterday's form.")
-    WebDriverWait(driver, 10000)
+    print("Opening Yesterday's form.")
+
+    # Wait for the next page/section to be ready
+    WebDriverWait(driver, 10).until(
+        EC.visibility_of_element_located((By.XPATH, "//h3[normalize-space()='House']"))
+    )
+    print("Yesterday's form opened.")
+    # Just sit and wait for 3 seconds
+    time.sleep(3)
 
 def fill_production_form(driver, data: dict):
     for label, value in data.items():
