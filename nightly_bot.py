@@ -12,6 +12,7 @@ import json
 from zoneinfo import ZoneInfo
 
 def round_hhmm_to_15(s: str) -> str:
+
     h, m = map(int, s.split(":"))
     total = h * 60 + m
     rounded = round(total / 15) * 15
@@ -132,7 +133,8 @@ def doProcessingOnAllFiles(yesterdayFiles):
         except Exception as e:
             print(f"Failed to process {filename}: {e}")
             dst = os.path.join(failed_dir, os.path.basename(filename))
-            shutil.copy(filename, dst)
+            ## get it out so it doens't cause any more trouble
+            shutil.move(filename, dst)
 
     ## verify that our light data is good 
     if lightStatus is True:
@@ -194,6 +196,9 @@ def everythingfromlastfile(last_yesterdayFile):
                 
         except Exception as e:
             print(f"Failed to process {last_yesterdayFile}: {e}")
+            dst = os.path.join(failed_dir, last_yesterdayFile)
+            ## get it out so it doens't cause any more trouble
+            shutil.move(last_yesterdayFile, dst)
 
 def deleteOldFiles(howmany):
     if howmany == 0:
