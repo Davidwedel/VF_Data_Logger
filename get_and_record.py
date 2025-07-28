@@ -1,6 +1,9 @@
+import argparse
 import os
 import time
 import json
+from google.oauth2 import service_account
+from googleapiclient.discovery import build
 
 from selenium import webdriver
 from selenium.webdriver.firefox.service import Service
@@ -16,6 +19,15 @@ PRODUCTION_URL_TMPL = "https://vitalfarms.poultrycloud.com/farm/production?farmI
 HEADLESS = False  # set True for headless mode
 # ----------------------------
 
+##handle arguments
+parser = argparse.ArgumentParser()
+
+parser.add_argument(
+    '--nowebsite', '-N',
+    action='store_true',
+    help='Pull from Google Sheets only.'
+)
+args = parser.parse_args()
 
 # Load secrets
 with open("environment.json", "r") as f:
@@ -29,6 +41,8 @@ HOUSE_ID = environment["House_ID"]
 TIMEOUT = environment["Timeout"]
 USERNAME = environment["Unitas_Username"]
 PASSWORD = environment["Unitas_Password"]
+RANGE_NAME = environment["range_name"]
+SPREADSHEET_ID = environment["spreadsheet_id"]
 
 if not USERNAME or not PASSWORD:
     raise SystemExit("Set Unitas_Username and Unitas_Password in environment.json!")
@@ -102,8 +116,141 @@ def get_yesterdays_form(driver, timeout):
     time.sleep(3)
 
 def fill_production_form(driver, data: dict):
-    for label, value in data.items():
-        input_by_label_text(driver, label, value)
+    
+    def fill_input_by_datacy_and_id(driver, data_cy: str, element_id: str, value, timeout: int = 10):
+
+        if value is None or value == "":
+            return
+
+        wait = WebDriverWait(driver, timeout)
+        try:
+            el = wait.until(
+                EC.element_to_be_clickable((
+                    By.XPATH,
+                    f"//select[@data-cy='{data_cy}' and @id='{element_id}']"
+                ))
+            )
+        except TimeoutException:
+            raise RuntimeError(
+                f"No <select> found with data-cy='{data_cy}' and id='{element_id}'"
+            )
+
+
+    def fill_input_by_id(driver, field_id, value, timeout=10):
+        # empty. return
+        if value is None or value == "":
+            return
+
+        # Wait for the input field to be visible
+        input_element = WebDriverWait(driver, timeout).until(
+            EC.visibility_of_element_located((By.ID, field_id))
+        )    
+
+        # check if input is select box
+        if input_element.tag_name.lower() != "select":
+            input_element.clear()          # Clear any existing text
+            
+        input_element.send_keys(value) # Insert the new value
+
+
+    #mortality_indoor = data[0]
+    fill_input_by_id(driver, "V33-H1", data[0][0])
+
+    #mortality_outdoor = data[1]
+    fill_input_by_id(driver, "V35-H1", data[0][1])
+
+    #euthanized_indoor = data[2]
+    fill_input_by_id(driver, "V34-H1", data[0][2])
+    
+    #euthanized_outdoor = data[3]
+    fill_input_by_id(driver, "V36-H1", data[0][3])
+
+    #depop_number = data[4]
+    fill_input_by_id(driver, "V101-H1", data[0][4])
+
+    #cull_reason = data[5]
+    #mortality_reason = data[6]
+
+
+    #mortality_comments = data[7]
+    fill_input_by_id(driver, "V81-H1", data[0][7])
+
+    #total_eggs = data[8]
+    fill_input_by_id(driver, "V4-H1", data[0][8])
+
+    #floor_eggs = data[9]
+    fill_input_by_id(driver, "V1-H1", data[0][9])
+
+    #nutritionist = data[10]
+    fill_input_by_id(driver, "V32-H1", data[0][10])
+
+    #ration_used = data[11]
+    fill_input_by_id(driver, "V31-H1", data[0][11])
+
+    #feed_consumption = data[12]
+    fill_input_by_id(driver, "V39-H1", data[0][12])
+    
+    #ration_delivered = data[13]
+    fill_input_by_id(driver, "V70-H1", data[0][13])
+    
+    #amount_delivered = data[14]
+    fill_input_by_id(driver, "V23-H1", data[0][14])
+
+    #lights_on_hh = data[15]
+    fill_input_by_datacy_and_id(driver, "input-hour", "V99-H1", data[0][15])
+
+    #lights_on_mm = data[16]
+    fill_input_by_datacy_and_id(driver, "input-minute", "V99-H1", data[0][16])
+
+    #lights_off_hh = data[17]
+    fill_input_by_datacy_and_id(driver, "input-hour", "V100-H1", data[0][17])
+
+    #lights_off_mm = data[18]
+    fill_input_by_datacy_and_id(driver, "input-minute", "V100-H1", data[0][18])
+
+    #added_supplements = data[19]
+    fill_input_by_id(driver, "V25-H1", data[0][19])
+
+    #water_consumption = data[20]
+    fill_input_by_id(driver, "V27-H1", data[0][20])
+        
+    #body_weight = data[21]
+    fill_input_by_id(driver, "V37-H1", data[0][21])
+        
+    #case_weight = data[22]
+    fill_input_by_id(driver, "V11-H1", data[0][22])
+        
+    #yolk_color = data[23]
+    fill_input_by_id(driver, "V98-H1", data[0][23])
+        
+    #door_open_hh = data[24]
+    fill_input_by_datacy_and_id(driver, "input-hour", "V78-H1", data[0][24])
+
+    #door_open_mm = data[25]
+    fill_input_by_datacy_and_id(driver, "input-minute", "V78-H1", data[0][25])
+
+    #door_close_hh = data[26]
+    fill_input_by_datacy_and_id(driver, "input-hour", "V79-H1", data[0][26])
+
+    #door_close_mm = data[27]
+    fill_input_by_datacy_and_id(driver, "input-minute", "V79-H1", data[0][27])
+
+    #birds_restricted = data[28]
+    #birds_restricted_reason = data[29]
+    #inside_high = data[30]
+    #inside_low = data[31]
+    #outside_high = data[32]
+    #outside_low = data[33]
+    #air_sensory = data[34]
+    #weather_conditions = data[35]
+    #outside_drinkers_clean = data[36]
+    #birds_found_under_slats = data[37]
+    #safe_environment_indoors = data[38]
+    #safe_environment_outdoors = data[39]
+    #equipment_functioning = data[40]
+    #predator_activity = data[41]
+    #comment = data[42]
+
 
 def save(driver):
     save_btn = click_when_clickable(driver, By.XPATH, "//button[contains(., 'Save') or contains(., 'Submit')]")
@@ -113,11 +260,47 @@ def save(driver):
     )
 
 def main():
+
+    ##Google Sheets stuff
+
+    # Path to your downloaded service account key
+    SERVICE_ACCOUNT_FILE = 'credentials.json'
+
+    # Scopes required for Sheets API
+    SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
+    
+    # Auth
+    creds = service_account.Credentials.from_service_account_file(
+        SERVICE_ACCOUNT_FILE, scopes=SCOPES
+    )
+    ## end of Google Sheets stuff
+
     driver = make_driver(HEADLESS)
     try:
-        login(driver)
-        open_production_page(driver, FARM_ID, HOUSE_ID)
-        get_yesterdays_form(driver, TIMEOUT)
+        if args.nowebsite:
+            print("Dry Run! Website Disabled!")
+        else:
+            login(driver)
+            open_production_page(driver, FARM_ID, HOUSE_ID)
+            get_yesterdays_form(driver, TIMEOUT)
+
+
+        # Sheets client
+        service = build("sheets", "v4", credentials=creds)
+
+        # Read
+        resp = service.spreadsheets().values().get(
+             spreadsheetId=SPREADSHEET_ID,
+            range=RANGE_NAME
+        ).execute()
+
+        values = resp.get("values", [])  # type: list[list[str]]
+        print(values)
+        fill_production_form(driver, values)
+        print("Worked!")
+        time.sleep(10000)
+        exit()
+
         data = {
             "Date": "2025-07-24",
             "Eggs collected": 12345,
