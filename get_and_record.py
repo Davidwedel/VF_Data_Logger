@@ -30,22 +30,22 @@ parser.add_argument(
 args = parser.parse_args()
 
 # Load secrets
-with open("environment.json", "r") as f:
-    environment = json.load(f)
+with open("secrets.json", "r") as f:
+    secrets = json.load(f)
 
-if not environment:
-    raise SystemExit("Fatal error. Set up environment.json file.")
+if not secrets:
+    raise SystemExit("Fatal error. Set up secrets.json file.")
 
-FARM_ID = environment["Farm_ID"]
-HOUSE_ID = environment["House_ID"]
-TIMEOUT = environment["Timeout"]
-USERNAME = environment["Unitas_Username"]
-PASSWORD = environment["Unitas_Password"]
-RANGE_NAME = environment["range_name"]
-SPREADSHEET_ID = environment["spreadsheet_id"]
+FARM_ID = secrets["Farm_ID"]
+HOUSE_ID = secrets["House_ID"]
+TIMEOUT = secrets["Timeout"]
+USERNAME = secrets["Unitas_Username"]
+PASSWORD = secrets["Unitas_Password"]
+RANGE_NAME = secrets["range_name"]
+SPREADSHEET_ID = secrets["spreadsheet_id"]
 
 if not USERNAME or not PASSWORD:
-    raise SystemExit("Set Unitas_Username and Unitas_Password in environment.json!")
+    raise SystemExit("Set Unitas_Username and Unitas_Password in secrets.json!")
 
 def make_driver(headless: bool = False):
     options = webdriver.FirefoxOptions()
