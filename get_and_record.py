@@ -56,9 +56,6 @@ def make_driver(headless: bool = False):
         options=options
     )
 
-def wait(driver, by, locator, timeout=TIMEOUT):
-    return WebDriverWait(driver, timeout).until(EC.presence_of_element_located((by, locator)))
-
 def click_when_clickable(driver, by, locator, timeout=TIMEOUT):
     return WebDriverWait(driver, timeout).until(EC.element_to_be_clickable((by, locator)))
 
