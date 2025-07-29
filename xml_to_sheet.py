@@ -294,7 +294,7 @@ SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
 
 SPREADSHEET_ID = secrets["spreadsheet_id"]
 
-RANGE_NAME = secrets["range_name"]
+RANGE_NAME = secrets["xml_to_sheet_range_name"]
 
 # Authenticate with the service account
 creds = service_account.Credentials.from_service_account_file(
