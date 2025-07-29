@@ -198,20 +198,24 @@ def fill_production_form(driver, data: dict):
     fill_input_by_id(driver, "V23-H1", data[0][14])
 
     #lights_on_hh = data[15]
-    formatted_hour = f"{int(data[0][15]):02d}"
-    fill_input_by_datacy_and_id(driver, "input-hour", "V99-H1", formatted_hour)
+    if data[0][15].strip() != "":
+        formatted_hour = f"{int(data[0][15]):02d}"
+        fill_input_by_datacy_and_id(driver, "input-hour", "V99-H1", formatted_hour)
 
     #lights_on_mm = data[16]
-    formatted_minute = f"{int(data[0][16]):02d}"  # "05"
-    fill_input_by_datacy_and_id(driver, "input-minute", "V99-H1", formatted_minute)
+    if data[0][16].strip() != "":
+        formatted_minute = f"{int(data[0][16]):02d}"  # "05"
+        fill_input_by_datacy_and_id(driver, "input-minute", "V99-H1", formatted_minute)
 
     #lights_off_hh = data[17]
-    formatted_hour = f"{int(data[0][17]):02d}"
-    fill_input_by_datacy_and_id(driver, "input-hour", "V100-H1", formatted_hour)
+    if data[0][17].strip() != "":
+        formatted_hour = f"{int(data[0][17]):02d}"
+        fill_input_by_datacy_and_id(driver, "input-hour", "V100-H1", formatted_hour)
 
     #lights_off_mm = data[18]
-    formatted_minute = f"{int(data[0][18]):02d}"  # "05"
-    fill_input_by_datacy_and_id(driver, "input-minute", "V100-H1", formatted_minute)
+    if data[0][18].strip() != "":
+        formatted_minute = f"{int(data[0][18]):02d}"  # "05"
+        fill_input_by_datacy_and_id(driver, "input-minute", "V100-H1", formatted_minute)
 
     #added_supplements = data[19]
     fill_input_by_id(driver, "V25-H1", data[0][19])
@@ -229,20 +233,24 @@ def fill_production_form(driver, data: dict):
     fill_input_by_id(driver, "V98-H1", data[0][23])
         
     #door_open_hh = data[24]
-    formatted_hour = f"{int(data[0][24]):02d}"
-    fill_input_by_datacy_and_id(driver, "input-hour", "V78-H1", formatted_hour)
+    if data[0][24].strip() != "":
+        formatted_hour = f"{int(data[0][24]):02d}"
+        fill_input_by_datacy_and_id(driver, "input-hour", "V78-H1", formatted_hour)
 
     #door_open_mm = data[25]
-    formatted_minute = f"{int(data[0][25]):02d}"  # "05"
-    fill_input_by_datacy_and_id(driver, "input-minute", "V78-H1", formatted_minute)
+    if data[0][25].strip() != "":
+        formatted_minute = f"{int(data[0][25]):02d}"  # "05"
+        fill_input_by_datacy_and_id(driver, "input-minute", "V78-H1", formatted_minute)
 
     #door_close_hh = data[26]
-    formatted_hour = f"{int(data[0][26]):02d}"
-    fill_input_by_datacy_and_id(driver, "input-hour", "V79-H1", formatted_hour)
+    if data[0][26].strip() != "":
+        formatted_hour = f"{int(data[0][26]):02d}"
+        fill_input_by_datacy_and_id(driver, "input-hour", "V79-H1", formatted_hour)
 
     #door_close_mm = data[27]
-    formatted_minute = f"{int(data[0][27]):02d}"  # "05"
-    fill_input_by_datacy_and_id(driver, "input-minute", "V79-H1", formatted_minute)
+    if data[0][27].strip() != "":
+        formatted_minute = f"{int(data[0][27]):02d}"  # "05"
+        fill_input_by_datacy_and_id(driver, "input-minute", "V79-H1", formatted_minute)
 
     #birds_restricted = data[28]
     fill_input_by_id(driver, "V92-H1", data[0][28])
@@ -328,10 +336,12 @@ def main():
         print(values)
         fill_production_form(driver, values)
         print("Worked!")
-        time.sleep(10000)
+        time.sleep(1)
 
     finally:
-        driver.quit()
+        print("Quitting. Look over the data and Save.")
+        print("Don't forget to close the browser window when you are done.")
+        print("Goodbye!")
 
 if __name__ == "__main__":
     main()
