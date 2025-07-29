@@ -3,3 +3,5 @@ sudo mkdir VF_Data_Logger
 sudo chown -R (yourlocaluser) VF_Data_Logger
 git clone https://github.com/Davidwedel/VF_Data_Logger.gitl
 cd VF_Data_Logger
+python3 -m venv .venv
+.venv/bin/pip install -r requirements.txt
