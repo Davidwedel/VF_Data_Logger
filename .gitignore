@@ -3,3 +3,4 @@ secrets.json
 nightly_secrets.json
 credentials.json
 *.xml
+environment.json
