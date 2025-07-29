@@ -88,7 +88,7 @@ def open_production_page(driver, farm_id: int, house_id: int):
     url = PRODUCTION_URL_TMPL.format(farm_id=farm_id, house_id=house_id)
     driver.get(url)
     ## wait until page loaded
-    WebDriverWait(driver, 10).until(
+    WebDriverWait(driver, TIMEOUT).until(
         EC.presence_of_element_located((By.CSS_SELECTOR, ".px-4.py-5"))
     )
 
@@ -105,7 +105,7 @@ def get_yesterdays_form(driver, timeout):
     print("Opening Yesterday's form.")
 
     # Wait for the next page/section to be ready
-    WebDriverWait(driver, 10).until(
+    WebDriverWait(driver, timeout).until(
         EC.visibility_of_element_located((By.XPATH, "//h3[normalize-space()='House']"))
     )
     print("Yesterday's form opened.")
@@ -137,7 +137,7 @@ def fill_production_form(driver, data: dict):
             )
 
 
-    def fill_input_by_id(driver, field_id, value, timeout=10):
+    def fill_input_by_id(driver, field_id, value, timeout=TIMEOUT):
         # empty. return
         if value is None or value == "":
             return
