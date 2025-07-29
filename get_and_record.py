@@ -288,15 +288,6 @@ def fill_production_form(driver, data: dict):
         
     #comment = data[42]
     #fill_input_by_id(driver, "Comment-H1", data[0][42])
-        
-
-
-def save(driver):
-    save_btn = click_when_clickable(driver, By.XPATH, "//button[contains(., 'Save') or contains(., 'Submit')]")
-    save_btn.click()
-    WebDriverWait(driver, TIMEOUT).until(
-        EC.presence_of_element_located((By.XPATH, "//*[contains(., 'Saved successfully')]"))
-    )
 
 def main():
 
@@ -338,17 +329,7 @@ def main():
         fill_production_form(driver, values)
         print("Worked!")
         time.sleep(10000)
-        exit()
 
-        data = {
-            "Date": "2025-07-24",
-            "Eggs collected": 12345,
-            "Mortality": 3,
-        }
-        fill_production_form(driver, data)
-        save(driver)
-        print("Data submitted successfully!")
-        time.sleep(3)
     finally:
         driver.quit()
 
