@@ -113,13 +113,14 @@ def get_yesterdays_form(driver, timeout):
     )
     print("Yesterday's form opened.")
     # Just sit and wait for 3 seconds
-    time.sleep(3)
+    time.sleep(.5)
 
 def fill_production_form(driver, data: dict):
     
     def fill_input_by_datacy_and_id(driver, data_cy: str, element_id: str, value, timeout: int = 10):
 
         if value is None or value == "":
+            print("none")
             return
 
         wait = WebDriverWait(driver, timeout)
@@ -130,6 +131,9 @@ def fill_production_form(driver, data: dict):
                     f"//select[@data-cy='{data_cy}' and @id='{element_id}']"
                 ))
             )
+
+            el.send_keys(value) # Insert the new value
+
         except TimeoutException:
             raise RuntimeError(
                 f"No <select> found with data-cy='{data_cy}' and id='{element_id}'"
@@ -197,16 +201,20 @@ def fill_production_form(driver, data: dict):
     fill_input_by_id(driver, "V23-H1", data[0][14])
 
     #lights_on_hh = data[15]
-    fill_input_by_datacy_and_id(driver, "input-hour", "V99-H1", data[0][15])
+    formatted_hour = f"{int(data[0][15]):02d}"
+    fill_input_by_datacy_and_id(driver, "input-hour", "V99-H1", formatted_hour)
 
     #lights_on_mm = data[16]
-    fill_input_by_datacy_and_id(driver, "input-minute", "V99-H1", data[0][16])
+    formatted_minute = f"{int(data[0][16]):02d}"  # "05"
+    fill_input_by_datacy_and_id(driver, "input-minute", "V99-H1", formatted_minute)
 
     #lights_off_hh = data[17]
-    fill_input_by_datacy_and_id(driver, "input-hour", "V100-H1", data[0][17])
+    formatted_hour = f"{int(data[0][17]):02d}"
+    fill_input_by_datacy_and_id(driver, "input-hour", "V100-H1", formatted_hour)
 
     #lights_off_mm = data[18]
-    fill_input_by_datacy_and_id(driver, "input-minute", "V100-H1", data[0][18])
+    formatted_minute = f"{int(data[0][18]):02d}"  # "05"
+    fill_input_by_datacy_and_id(driver, "input-minute", "V100-H1", formatted_minute)
 
     #added_supplements = data[19]
     fill_input_by_id(driver, "V25-H1", data[0][19])
@@ -224,32 +232,66 @@ def fill_production_form(driver, data: dict):
     fill_input_by_id(driver, "V98-H1", data[0][23])
         
     #door_open_hh = data[24]
-    fill_input_by_datacy_and_id(driver, "input-hour", "V78-H1", data[0][24])
+    formatted_hour = f"{int(data[0][24]):02d}"
+    fill_input_by_datacy_and_id(driver, "input-hour", "V78-H1", formatted_hour)
 
     #door_open_mm = data[25]
-    fill_input_by_datacy_and_id(driver, "input-minute", "V78-H1", data[0][25])
+    formatted_minute = f"{int(data[0][25]):02d}"  # "05"
+    fill_input_by_datacy_and_id(driver, "input-minute", "V78-H1", formatted_minute)
 
     #door_close_hh = data[26]
-    fill_input_by_datacy_and_id(driver, "input-hour", "V79-H1", data[0][26])
+    formatted_hour = f"{int(data[0][26]):02d}"
+    fill_input_by_datacy_and_id(driver, "input-hour", "V79-H1", formatted_hour)
 
     #door_close_mm = data[27]
-    fill_input_by_datacy_and_id(driver, "input-minute", "V79-H1", data[0][27])
+    formatted_minute = f"{int(data[0][27]):02d}"  # "05"
+    fill_input_by_datacy_and_id(driver, "input-minute", "V79-H1", formatted_minute)
 
     #birds_restricted = data[28]
+    fill_input_by_id(driver, "V92-H1", data[0][28])
+        
     #birds_restricted_reason = data[29]
+    fill_input_by_id(driver, "V97-H1", data[0][29])
+        
     #inside_high = data[30]
+    fill_input_by_id(driver, "V28-H1", data[0][30])
+        
     #inside_low = data[31]
+    fill_input_by_id(driver, "V29-H1", data[0][31])
+        
     #outside_high = data[32]
+    fill_input_by_id(driver, "V72-H1", data[0][32])
+        
     #outside_low = data[33]
+    fill_input_by_id(driver, "V71-H1", data[0][33])
+        
     #air_sensory = data[34]
+    fill_input_by_id(driver, "V89-H1", data[0][34])
+        
     #weather_conditions = data[35]
+    fill_input_by_id(driver, "V90-H1", data[0][35])
+        
     #outside_drinkers_clean = data[36]
+    fill_input_by_id(driver, "V95-H1", data[0][36])
+        
     #birds_found_under_slats = data[37]
+    fill_input_by_id(driver, "V77-H1", data[0][37])
+        
     #safe_environment_indoors = data[38]
+    fill_input_by_id(driver, "V93-H1", data[0][38])
+        
     #safe_environment_outdoors = data[39]
+    fill_input_by_id(driver, "V94-H1", data[0][39])
+        
     #equipment_functioning = data[40]
+    fill_input_by_id(driver, "V91-H1", data[0][40])
+        
     #predator_activity = data[41]
+    fill_input_by_id(driver, "V88-H1", data[0][41])
+        
     #comment = data[42]
+    #fill_input_by_id(driver, "Comment-H1", data[0][42])
+        
 
 
 def save(driver):
