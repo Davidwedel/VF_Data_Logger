@@ -41,7 +41,7 @@ HOUSE_ID = secrets["House_ID"]
 TIMEOUT = secrets["Timeout"]
 USERNAME = secrets["Unitas_Username"]
 PASSWORD = secrets["Unitas_Password"]
-RANGE_NAME = secrets["range_name"]
+RANGE_NAME = secrets["sheet_to_unitas_range_name"]
 SPREADSHEET_ID = secrets["spreadsheet_id"]
 
 if not USERNAME or not PASSWORD:
