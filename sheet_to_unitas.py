@@ -169,15 +169,19 @@ def fill_production_form(driver, data: dict):
 
 
     #mortality_indoor = data[0]
+    if data[0][0] == "" : data[0][0] = "0"
     fill_input_by_id(driver, "V33-H1", data[0][0])
 
     #mortality_outdoor = data[1]
+    if data[0][1] == "": data[0][1] = "0"
     fill_input_by_id(driver, "V35-H1", data[0][1])
 
     #euthanized_indoor = data[2]
+    if data[0][2] == "": data[0][2] = "0"
     fill_input_by_id(driver, "V34-H1", data[0][2])
     
     #euthanized_outdoor = data[3]
+    if data[0][3] == "": data[0][3] = "0"
     fill_input_by_id(driver, "V36-H1", data[0][3])
 
     #depop_number = data[4]
@@ -354,6 +358,11 @@ def main():
 
         print(values)
         fill_production_form(driver, values)
+
+        #scroll back to top
+        element = driver.find_element(By.ID, "V33-H1")
+        driver.execute_script("arguments[0].scrollIntoView({ behavior: 'smooth', block: 'center' });", element)
+
         print("Worked!")
         time.sleep(1)
 
