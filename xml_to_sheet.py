@@ -12,7 +12,9 @@ import json
 from zoneinfo import ZoneInfo
 
 def round_hhmm_to_15(s: str) -> str:
-
+    # deal with Not available strings
+    if s == "=NA()":
+        return "=NA()"
     h, m = map(int, s.split(":"))
     total = h * 60 + m
     rounded = round(total / 15) * 15
@@ -36,6 +38,8 @@ def extract_hour_min_from_filename(filename):
     return hour, minute
 
 def c_to_f(celsius):
+    if celsius == "=NA()":
+        return "=NA()"
     return (celsius * 9/5) + 32
 
 def kg_to_lb(kg):
