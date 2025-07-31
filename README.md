@@ -34,36 +34,36 @@ Allows the User to enter data not contained in the Rotem into the spreadsheet.
 Requirements:
 * You will need to have computer with a screen, running a Linux distro, on the same local network as your Rotem Communicator. This software may not work on Windows.
 * You will need to have Python, Git, vsftpd, and Pip installed on the computer. There are better guides elsewhere on the internet than I can write up here.
-1. Set up FTP Server/Client
-    * Set up FTP server on your computer:
-        * Coming soon...
+1. Set up FTP Server/Client<br>
+    * Set up FTP server on your computer:<br>
+        * Coming soon...<br>
 
-    * Set up FTP client on RotemWeb.
-        Consult the Rotem Communicator Manual, and go to page 88.
-        https://munters.zendesk.com/hc/en-us/article_attachments/21308920512156
-        Using that, fill out the General Settings tab on RotemWeb.
-        Farm Code: Leave this one blank.
-        Integrator Name: Other
-        Dealer: Other
-        Data Provider: Other
-        Accept the license and Save.
+    * Set up FTP client on RotemWeb.<br>
+        Consult the Rotem Communicator Manual, and go to page 88.<br>
+        https://munters.zendesk.com/hc/en-us/article_attachments/21308920512156<br>
+        Using that, fill out the General Settings tab on RotemWeb.<br>
+        Farm Code: Leave this one blank.<br>
+        Integrator Name: Other<br>
+        Dealer: Other<br>
+        Data Provider: Other<br>
+        Accept the license and Save.<br>
 
-        Navigate to Data Collection page.
-        Select "FTP", not "SFTP"
-        Host Address: IP Address of your server computer.
-        Port Number: 21
-        Target Folder: /upload
-        User Name: ftp
-        Password: Use your email address
+        Navigate to Data Collection page.<br>
+        Select "FTP", not "SFTP"<br>
+        Host Address: IP Address of your server computer.<br>
+        Port Number: 21<br>
+        Target Folder: /upload<br>
+        User Name: ftp<br>
+        Password: Use your email address<br>
 
 2. Clone the Repository
 
-    ```cd /srv/ftp```
-    ```sudo mkdir VF_Data_Logger```
-    ```sudo chown -R (yourusername) VF_Data_Logger```
-    ```git clone https://github.com/Davidwedel/VF_Data_Logger.git```
-    ```cd VF_Data_Logger```
-    ```python3 -m venv .venv```
+    ```cd /srv/ftp```<br>
+    ```sudo mkdir VF_Data_Logger```<br>
+    ```sudo chown -R (yourusername) VF_Data_Logger```<br>
+    ```git clone https://github.com/Davidwedel/VF_Data_Logger.git```<br>
+    ```cd VF_Data_Logger```<br>
+    ```python3 -m venv .venv```<br>
 
 3. Install Dependencies
 
@@ -99,7 +99,7 @@ Requirements:
 
 Make sure credentials.json and secrets.json are present, then simply run:
 
-```python nightly_bot.py```
+```.venv/bin/python nightly_bot.py```
 
 This will:
 
