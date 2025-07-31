@@ -2,6 +2,7 @@ import argparse
 import os
 import time
 import json
+import re
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
 
@@ -46,6 +47,19 @@ SPREADSHEET_ID = secrets["spreadsheet_id"]
 
 if not USERNAME or not PASSWORD:
     raise SystemExit("Set Unitas_Username and Unitas_Password in secrets.json!")
+
+def col_to_num(col):
+    num = 0
+    for c in col:
+        num = num * 26 + (ord(c.upper()) - ord('A') + 1)
+    return num
+
+def count_columns_in_range(range_str):
+    match = re.search(r'!([A-Z]+)\d+:([A-Z]+)\d+', range_str)
+    if not match:
+        raise ValueError("Invalid range format")
+    start_col, end_col = match.groups()
+    return col_to_num(end_col) - col_to_num(start_col) + 1
 
 def make_driver(headless: bool = False):
     options = webdriver.FirefoxOptions()
@@ -295,7 +309,7 @@ def fill_production_form(driver, data: dict):
     fill_input_by_id(driver, "V88-H1", data[0][41])
         
     #comment = data[42]
-    #fill_input_by_id(driver, "Comment-H1", data[0][42])
+    fill_input_by_id(driver, "Comment-H1", data[0][42])
 
 def main():
 
@@ -333,6 +347,11 @@ def main():
         ).execute()
 
         values = resp.get("values", [])  # type: list[list[str]]
+
+        cols = (count_columns_in_range(RANGE_NAME) - 1)
+        print(cols)
+        values = [row + [""] * (cols - len(row)) for row in values]
+
         print(values)
         fill_production_form(driver, values)
         print("Worked!")
