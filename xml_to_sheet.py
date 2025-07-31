@@ -6,8 +6,6 @@ import glob
 import os
 import xml.etree.ElementTree as ET
 from datetime import date, timedelta, datetime
-from google.oauth2 import service_account
-from googleapiclient.discovery import build
 import json
 from zoneinfo import ZoneInfo
 
@@ -267,8 +265,8 @@ args = parser.parse_args()
 
 
 # Load secrets
-with open("secrets.json", "r") as f:
-    secrets = json.load(f)
+#with open("secrets.json", "r") as f:
+#    secrets = json.load(f)
     
 #folder where XML files are stored (change if needed)
 xmlFolder = secrets["path_to_xmls"]
@@ -283,112 +281,95 @@ getCoolerTempAM = secrets["get_cooler_temp_AM"]
 getCoolerTempPM = secrets["get_cooler_temp_PM"]
 coolerTempTimeTolerance = secrets["cooler_temp_time_tolerance"]
 time_zone = secrets["time_zone"]
+    SPREADSHEET_ID = secrets["spreadsheet_id"]
 
-##Google Sheets stuff
+def startup():
 
-# Path to your downloaded service account key
-SERVICE_ACCOUNT_FILE = 'credentials.json'
+    #start figuring various things we need to know
 
-# Scopes required for Sheets API
-SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
+    #get yesterday's date, as formatted in the xml filename I.E. YYYYMMDD(20250722)
+    yesterday = (date.today() - timedelta(days=1)).strftime("%Y%m%d")
+    #yesterday = date.today().strftime("%Y%m%d")
 
-SPREADSHEET_ID = secrets["spreadsheet_id"]
+    #print("Yesterday:" + yesterday)
 
-RANGE_NAME = secrets["xml_to_sheet_range_name"]
+    #file pattern to yesterday's files
+    yesterdayFiles = os.path.join(xmlFolder, (yesterday+"*.xml"))
 
-# Authenticate with the service account
-creds = service_account.Credentials.from_service_account_file(
-    SERVICE_ACCOUNT_FILE, scopes=SCOPES)
+    xmlNameOnly = glob.glob(yesterdayFiles)
 
-##End of Google Sheets stuff
+    if xmlNameOnly:
+        last_yesterdayFile = max(xmlNameOnly, key=lambda f: datetime.strptime(os.path.basename(f)[:14], "%Y%m%d%H%M%S"))
+    else:
+        print("No files found for yesterday. Exiting...")
+        #exit()
 
-
-#start figuring various things we need to know
-
-#get yesterday's date, as formatted in the xml filename I.E. YYYYMMDD(20250722)
-yesterday = (date.today() - timedelta(days=1)).strftime("%Y%m%d")
-#yesterday = date.today().strftime("%Y%m%d")
-
-#print("Yesterday:" + yesterday)
-
-#file pattern to yesterday's files
-yesterdayFiles = os.path.join(xmlFolder, (yesterday+"*.xml"))
-
-xmlNameOnly = glob.glob(yesterdayFiles)
-
-if xmlNameOnly:
-    last_yesterdayFile = max(xmlNameOnly, key=lambda f: datetime.strptime(os.path.basename(f)[:14], "%Y%m%d%H%M%S"))
-else:
-    print("No files found for yesterday. Exiting...")
-    exit()
-
-#end figuring various things we need to know
-
-#for the spreadsheet
-now = datetime.now()
-formatted_now = now.strftime("%m-%d-%Y %H:%M:%S")
-
-yesterdayDate = date.today() - timedelta(days=1)
-formatted_yesterday = yesterdayDate.strftime("%m-%d-%Y")
+    #end figuring various things we need to know
 
 
-#parse all files from yesterday and average the outside temp
-#return outsideHigh, outsideLow, insideHigh, insideLow !!What gets returned!!
-databack = doProcessingOnAllFiles(yesterdayFiles)
-#print(databack)
+    #for the spreadsheet
+    now = datetime.now()
+    formatted_now = now.strftime("%m-%d-%Y %H:%M:%S")
 
-outsideHigh = c_to_f(databack[0])
-outsideLow = c_to_f(databack[1])
-insideHigh = c_to_f(databack[2])
-insideLow = c_to_f(databack[3])
-lightOnTime = round_hhmm_to_15(databack[4])
-lightOffTime = round_hhmm_to_15(databack[5])
-
-#returns mortality, feed consumption, water consumption, average weight
-databack = everythingfromlastfile(last_yesterdayFile)
-#print(databack)
-
-mortality = databack[0]
-feedConsumption = kg_to_lb(databack[1])
-waterConsumption = databack[2]
-avgWeight = kg_to_lb(databack[3])
-
-t = getCoolerTemp(getCoolerTempAM, coolerTempTimeTolerance, xmlNameOnly)
-coolerTempTimeAM = round_hhmm_to_15(t[0])
-coolerTempAM = c_to_f(t[1])
-
-t = getCoolerTemp(getCoolerTempPM, coolerTempTimeTolerance, xmlNameOnly)
-coolerTempTimePM = round_hhmm_to_15(t[0])
-coolerTempPM = c_to_f(t[1])
-
-# Build the Sheets API client
-service = build('sheets', 'v4', credentials=creds)
+    yesterdayDate = date.today() - timedelta(days=1)
+    formatted_yesterday = yesterdayDate.strftime("%m-%d-%Y")
 
 
-# Values to append (list of rows, each row is a list of columns)
-values = [
-    [formatted_now, formatted_yesterday, "Nightly Log", outsideHigh, outsideLow, insideHigh, insideLow, mortality, feedConsumption, waterConsumption, avgWeight, coolerTempTimeAM, coolerTempAM, coolerTempTimePM, coolerTempPM, lightOnTime, lightOffTime]
-]
+    #parse all files from yesterday and average the outside temp
+    #return outsideHigh, outsideLow, insideHigh, insideLow !!What gets returned!!
+    databack = doProcessingOnAllFiles(yesterdayFiles)
+    #print(databack)
 
-body = {
-    'values': values
-}
+    outsideHigh = c_to_f(databack[0])
+    outsideLow = c_to_f(databack[1])
+    insideHigh = c_to_f(databack[2])
+    insideLow = c_to_f(databack[3])
+    lightOnTime = round_hhmm_to_15(databack[4])
+    lightOffTime = round_hhmm_to_15(databack[5])
+
+    #returns mortality, feed consumption, water consumption, average weight
+    databack = everythingfromlastfile(last_yesterdayFile)
+    #print(databack)
+
+    mortality = databack[0]
+    feedConsumption = kg_to_lb(databack[1])
+    waterConsumption = databack[2]
+    avgWeight = kg_to_lb(databack[3])
+
+    t = getCoolerTemp(getCoolerTempAM, coolerTempTimeTolerance, xmlNameOnly)
+    coolerTempTimeAM = round_hhmm_to_15(t[0])
+    coolerTempAM = c_to_f(t[1])
+
+    t = getCoolerTemp(getCoolerTempPM, coolerTempTimeTolerance, xmlNameOnly)
+    coolerTempTimePM = round_hhmm_to_15(t[0])
+    coolerTempPM = c_to_f(t[1])
+
+    # Build the Sheets API client
+    service = build('sheets', 'v4', credentials=creds)
 
 
-if args.donotsend:
-    print("Dry Run! Sending Disabled!")
-else:
+    # Values to append (list of rows, each row is a list of columns)
+    values = [[formatted_now, formatted_yesterday, "Nightly Log", outsideHigh, outsideLow, insideHigh, insideLow, mortality, feedConsumption, waterConsumption, avgWeight, coolerTempTimeAM, coolerTempAM, coolerTempTimePM, coolerTempPM, lightOnTime, lightOffTime]]
+
+    body = {
+        'values': values
+    }
+
+
+    if args.donotsend:
+        print("Dry Run! Sending Disabled!")
+    else:
     # Append the rows
-    result = service.spreadsheets().values().append(
-        spreadsheetId=SPREADSHEET_ID,
-        range=RANGE_NAME,
-        valueInputOption='USER_ENTERED',  # or RAW
-        insertDataOption='INSERT_ROWS',
-        body=body
-    ).execute()
+        result = service.spreadsheets().values().append(
+            spreadsheetId=SPREADSHEET_ID,
+            range=RANGE_NAME,
+            valueInputOption='USER_ENTERED',  # or RAW
+            insertDataOption='INSERT_ROWS',
+            body=body
+        ).execute()
 
-    print(f"{result.get('updates').get('updatedRows')} rows appended.")
+        print(f"{result.get('updates').get('updatedRows')} rows appended.")
 
-#delete all old files, so file doesn't fill up.
-deleteOldFiles(howLongToSaveOldFiles)
+    #delete all old files, so file doesn't fill up.
+    deleteOldFiles(howLongToSaveOldFiles)
 
