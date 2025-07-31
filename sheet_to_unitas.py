@@ -358,6 +358,11 @@ def main():
 
         print(values)
         fill_production_form(driver, values)
+
+        #scroll back to top
+        element = driver.find_element(By.ID, "V33-H1")
+        driver.execute_script("arguments[0].scrollIntoView({ behavior: 'smooth', block: 'center' });", element)
+
         print("Worked!")
         time.sleep(1)
 
