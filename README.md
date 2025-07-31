@@ -3,9 +3,15 @@ This script is for demonstrational purposes only and is not designed to be used 
 ### Disclaimer 2: 
 The following ReadMe is ChatGPT generated. 
 
-## 🐓 Rotem To Spreadsheet Uploader
+### Disclaimer 3:
+I am not a "good" programmer. If it works, I assume it is right. If you know your stuff, and improve the code structure/readeability, I will be happy to merge any Pull Requests.
 
-This script processes XML files exported from Rotem controllers (used in poultry houses), extracts key environmental and performance data (temperature, light status, feed/water consumption, mortality, etc.), and appends it to a Google Spreadsheet for daily recordkeeping.
+### Disclaimer 4: 
+This whole project is in development stage.
+
+## 🐓 Rotem To Unitas
+
+This project is designed to streamline recordkeeping on a Vital Farms Chicken barn. It processes XML files exported from the Rotem controller, extracts key environmental and performance data (temperature, light status, feed/water consumption, mortality, etc.), and appends it to a Google Spreadsheet for daily recordkeeping. Then, sends the data to Unitas website, and autofills the values so the User just needs to look over the data, and save.
 ### 📦 Features
 
  Automatically detects yesterday’s files and parses:
@@ -22,19 +28,50 @@ Cleans up old XML files after a set number of days
 
 Uses Google Sheets API to log a daily summary to Google Sheets
 
+Allows the User to enter data not contained in the Rotem into the spreadsheet.
+
 ### 🔧 Setup
-1. Clone the Repository
+Requirements:
+* You will need to have computer with a screen, running a Linux distro, on the same local network as your Rotem Communicator. This software may not work on Windows.
+* You will need to have Python, Git, vsftpd, and Pip installed on the computer. There are better guides elsewhere on the internet than I can write up here.
+1. Set up FTP Server/Client
+    * Set up FTP server on your computer:
+        * Coming soon...
 
-    ```git clone https://github.com/Davidwedel/rotem--spreadsheet.git```<br>
-    ```cd rotem--spreadsheet```
+    * Set up FTP client on RotemWeb.
+        Consult the Rotem Communicator Manual, and go to page 88.
+        https://munters.zendesk.com/hc/en-us/article_attachments/21308920512156
+        Using that, fill out the General Settings tab on RotemWeb.
+        Farm Code: Leave this one blank.
+        Integrator Name: Other
+        Dealer: Other
+        Data Provider: Other
+        Accept the license and Save.
 
-2. Install Dependencies
+        Navigate to Data Collection page.
+        Select "FTP", not "SFTP"
+        Host Address: IP Address of your server computer.
+        Port Number: 21
+        Target Folder: /upload
+        User Name: ftp
+        Password: Use your email address
+
+2. Clone the Repository
+
+    ```cd /srv/ftp```
+    ```sudo mkdir VF_Data_Logger```
+    ```sudo chown -R (yourusername) VF_Data_Logger```
+    ```git clone https://github.com/Davidwedel/VF_Data_Logger.git```
+    ```cd VF_Data_Logger```
+    ```python3 -m venv .venv```
+
+3. Install Dependencies
 
     Use pip to install required Python packages:
 
-    ```pip install -r requirements.txt```
+    ```.venv/bin/pip install -r requirements.txt```
 
-3. Set Up Google API Credentials
+4. Set Up Google API Credentials
 
    * Go to the Google Cloud Console
 
@@ -49,7 +86,7 @@ Uses Google Sheets API to log a daily summary to Google Sheets
 
 1. Copy the data in examplesecrets.json to a file called secrets.json
    * Explanation of Fields
-        * spreadsheet_id:                  The ID from thje URL of your Google Sheet<br>
+        * spreadsheet_id:                  The ID from the URL of your Google Sheet<br>
         * range_name:                      The sheet and starting cell to append data (e.g., "Sheet1!A1")<br>
         * path_to_xmls:                    Full path to the folder containing .xml files<br>
         * how_long_to_save_old_files:     Number of days to keep XMLs (0 disables deletion)<br>
