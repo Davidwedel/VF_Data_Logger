@@ -1,6 +1,5 @@
 import os
 import time
-import re
 import unitas_processing_helper as helper
 
 from selenium import webdriver
@@ -10,6 +9,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
+HEADLESS = None
 FARM_ID = None
 HOUSE_ID = None
 TIMEOUT = None
@@ -17,11 +17,13 @@ USERNAME = None
 PASSWORD = None
 RANGE_NAME = None
 SPREADSHEET_ID = None
+LOGIN_URL = None
+PRODUCTION_URL_TMPL = None
 
 def do_unitas_setup(secrets):
 # ---------- config ----------
 
-    global FARM_ID, HOUSE_ID, TIMEOUT, USERNAME, PASSWORD, RANGE_NAME, SPREADSHEET_ID
+    global HEADLESS, FARM_ID, HOUSE_ID, TIMEOUT, USERNAME, PASSWORD, RANGE_NAME, SPREADSHEET_ID, LOGIN_URL, PRODUCTION_URL_TMPL
     LOGIN_URL = "https://vitalfarms.poultrycloud.com/login"  # confirm this
     PRODUCTION_URL_TMPL = "https://vitalfarms.poultrycloud.com/farm/production?farmId={farm_id}&houseId={house_id}"
 
@@ -240,18 +242,13 @@ def fill_production_form(driver, data: dict):
     #comment = data[42]
     helper.fill_input_by_id(driver, "Comment-H1", data[0][42])
 
-def run_unitas_stuff():
+def run_unitas_stuff(values):
 
     driver = make_driver(HEADLESS)
     try:
-        if args.nowebsite:
-            print("Dry Run! Website Disabled!")
-        else:
-            login(driver)
-            open_production_page(driver, FARM_ID, HOUSE_ID)
-            get_yesterdays_form(driver, TIMEOUT)
-
-
+        login(driver)
+        open_production_page(driver, FARM_ID, HOUSE_ID)
+        get_yesterdays_form(driver, TIMEOUT)
         fill_production_form(driver, values)
 
         #scroll back to top

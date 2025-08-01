@@ -26,6 +26,11 @@ parser.add_argument(
     action='store_true',
     help='Just do XML stuff. No log to Sheets or send to Unitas'
 )
+parser.add_argument(
+    '--NoDelete', '-ND',
+    action='store_true',
+    help="Don't delete old XML files"
+)
 args = parser.parse_args()
 
 # Load secrets
@@ -42,6 +47,8 @@ SPREADSHEET_ID = secrets["spreadsheet_id"]
 
 XML_TO_SHEET_RANGE_NAME = secrets["xml_to_sheet_range_name"]
 
+SHEET_TO_UNITAS_RANGE_NAME = secrets["sheet_to_unitas_range_name"]
+
 # Authenticate with the service account
 creds = service_account.Credentials.from_service_account_file(
     SERVICE_ACCOUNT_FILE, scopes=SCOPES)
@@ -56,7 +63,9 @@ service = build('sheets', 'v4', credentials=creds)
 #write_to_sheet(valuesFromXML, SPREADSHEET_ID, XML_TO_SHEET_RANGE_NAME, service)
 
 do_unitas_setup(secrets)
-run_unitas_stuff()
+valuesToSend = read_from_sheet(SPREADSHEET_ID, SHEET_TO_UNITAS_RANGE_NAME, service)
+run_unitas_stuff(valuesToSend)
 
 #delete all old files, so directory doesn't fill up.
-deleteOldFiles()
+if not args.NoDelete:
+    deleteOldFiles()
