@@ -325,11 +325,11 @@ def run_xml_stuff():
 
     #parse all files from yesterday and average the outside temp
     #return outsideHigh, outsideLow, insideHigh, insideLow !!What gets returned!!
-    databack.append(doProcessingOnAllFiles(yesterdayFiles))
+    databack.extend(doProcessingOnAllFiles(yesterdayFiles))
     #print(databack)
 
     #returns mortality, feed consumption, water consumption, average weight
-    databack.append(everythingfromlastfile(last_yesterdayFile))
+    databack.extend(everythingfromlastfile(last_yesterdayFile))
 
     print(databack)
      
