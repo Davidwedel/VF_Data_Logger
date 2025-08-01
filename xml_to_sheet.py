@@ -1,5 +1,3 @@
-import csv
-import argparse
 import shutil
 import requests
 import glob
@@ -267,17 +265,6 @@ def getCoolerTemp(theTime, theTolerance, theName):
     except Exception as e:
         print(f"Failed to process {closest_file}: {e}")
             
-##handle arguments
-#parser = argparse.ArgumentParser()
-
-#parser.add_argument(
-#    '--donotsend', '-N',
-#    action='store_true',
-#    help='Do everything except actually send.'
-#)
-#args = parser.parse_args()
-
-
 def do_xml_setup(secrets):
 
     global xmlFolder, howLongToSaveOldFiles, getCoolerTempAM, getCoolerTempPM
