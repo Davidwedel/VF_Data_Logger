@@ -1,5 +1,6 @@
 import argparse
-from xml_processing import do_xml_setup, run_xml_stuff
+from xml_processing import do_xml_setup, run_xml_stuff, deleteOldFiles
+from sheets_processing import read_from_sheet, write_to_sheet
 import os
 import json
 from google.oauth2 import service_account
@@ -36,13 +37,22 @@ SERVICE_ACCOUNT_FILE = 'credentials.json'
 # Scopes required for Sheets API
 SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
 
-RANGE_NAME = secrets["xml_to_sheet_range_name"]
+SPREADSHEET_ID = secrets["spreadsheet_id"]
+
+XML_TO_SHEET_RANGE_NAME = secrets["xml_to_sheet_range_name"]
 
 # Authenticate with the service account
 creds = service_account.Credentials.from_service_account_file(
     SERVICE_ACCOUNT_FILE, scopes=SCOPES)
 
+# Build the Sheets API client
+service = build('sheets', 'v4', credentials=creds)
+
 ##End of Google Sheets stuff
 
 do_xml_setup(secrets)
-run_xml_stuff()
+valuesFromXML = run_xml_stuff()
+write_to_sheet(valuesFromXML, SPREADSHEET_ID, XML_TO_SHEET_RANGE_NAME, service)
+
+#delete all old files, so directory doesn't fill up.
+deleteOldFiles()

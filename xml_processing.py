@@ -4,7 +4,6 @@ import glob
 import os
 import xml.etree.ElementTree as ET
 from datetime import date, timedelta, datetime
-#import json
 from zoneinfo import ZoneInfo
 
 # Shared variables for all functions
@@ -15,7 +14,6 @@ getCoolerTempAM = None
 getCoolerTempPM = None
 coolerTempTimeTolerance = None
 time_zone = None
-SPREADSHEET_ID = None
 
 def round_hhmm_to_15(s: str) -> str:
     # deal with Not available strings
@@ -210,12 +208,12 @@ def everythingfromlastfile(last_yesterdayFile):
             ## get it out so it doens't cause any more trouble
             shutil.move(last_yesterdayFile, dst)
 
-def deleteOldFiles(howmany):
-    if howmany == 0:
+def deleteOldFiles():
+    if howLongToSaveOldFiles == 0:
         print("File Deletion shut off!")
     else:
        howManyDeleted = 0
-       day2Delete = (date.today() - timedelta(days=howmany)).strftime("%Y%m%d")
+       day2Delete = (date.today() - timedelta(days=howLongToSaveOldFiles)).strftime("%Y%m%d")
        print(f"Deleting files from day {day2Delete}!")
        for filename in os.listdir(xmlFolder):
            if filename.endswith(".xml") and filename[:8] <= day2Delete:
@@ -268,7 +266,7 @@ def getCoolerTemp(theTime, theTolerance, theName):
 def do_xml_setup(secrets):
 
     global xmlFolder, howLongToSaveOldFiles, getCoolerTempAM, getCoolerTempPM
-    global coolerTempTimeTolerance, time_zone, SPREADSHEET_ID
+    global coolerTempTimeTolerance, time_zone
 
     xmlFolder = secrets["path_to_xmls"]
     howLongToSaveOldFiles = secrets["how_long_to_save_old_files"]
@@ -276,7 +274,6 @@ def do_xml_setup(secrets):
     getCoolerTempPM = secrets["get_cooler_temp_PM"]
     coolerTempTimeTolerance = secrets["cooler_temp_time_tolerance"]
     time_zone = secrets["time_zone"]
-    SPREADSHEET_ID = secrets["spreadsheet_id"]
 def run_xml_stuff():
     databack = []
     #start figuring various things we need to know
@@ -343,31 +340,4 @@ def run_xml_stuff():
     print(values)
 
     return values
-
-    # Build the Sheets API client
-    service = build('sheets', 'v4', credentials=creds)
-
-
-
-    body = {
-        'values': values
-    }
-
-
-    if args.donotsend:
-        print("Dry Run! Sending Disabled!")
-    else:
-    # Append the rows
-        result = service.spreadsheets().values().append(
-            spreadsheetId=SPREADSHEET_ID,
-            range=RANGE_NAME,
-            valueInputOption='USER_ENTERED',  # or RAW
-            insertDataOption='INSERT_ROWS',
-            body=body
-        ).execute()
-
-        print(f"{result.get('updates').get('updatedRows')} rows appended.")
-
-    #delete all old files, so file doesn't fill up.
-    deleteOldFiles(howLongToSaveOldFiles)
 
