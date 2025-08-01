@@ -296,7 +296,7 @@ def run_xml_stuff():
 
     #get yesterday's date, as formatted in the xml filename I.E. YYYYMMDD(20250722)
     yesterday = (date.today() - timedelta(days=1)).strftime("%Y%m%d")
-    #yesterday = date.today().strftime("%Y%m%d")
+    yesterday = date.today().strftime("%Y%m%d")
 
     #print("Yesterday:" + yesterday)
 
@@ -325,15 +325,7 @@ def run_xml_stuff():
 
     #parse all files from yesterday and average the outside temp
     #return outsideHigh, outsideLow, insideHigh, insideLow !!What gets returned!!
-    databack.extend(doProcessingOnAllFiles(yesterdayFiles))
-    #print(databack)
-
-    #returns mortality, feed consumption, water consumption, average weight
-    databack.extend(everythingfromlastfile(last_yesterdayFile))
-
-    print(databack)
-     
-    return databack
+    databack = doProcessingOnAllFiles(yesterdayFiles)
 
     outsideHigh = c_to_f(databack[0])
     outsideLow = c_to_f(databack[1])
@@ -344,7 +336,6 @@ def run_xml_stuff():
 
     #returns mortality, feed consumption, water consumption, average weight
     databack = everythingfromlastfile(last_yesterdayFile)
-    #print(databack)
 
     mortality = databack[0]
     feedConsumption = kg_to_lb(databack[1])
@@ -359,12 +350,17 @@ def run_xml_stuff():
     coolerTempTimePM = round_hhmm_to_15(t[0])
     coolerTempPM = c_to_f(t[1])
 
+    # Values to append (list of rows, each row is a list of columns)
+    values = [[formatted_now, formatted_yesterday, "Nightly Log", outsideHigh, outsideLow, insideHigh, insideLow, mortality, feedConsumption, waterConsumption, avgWeight, coolerTempTimeAM, coolerTempAM, coolerTempTimePM, coolerTempPM, lightOnTime, lightOffTime]]
+
+    print(values)
+
+    return values
+
     # Build the Sheets API client
     service = build('sheets', 'v4', credentials=creds)
 
 
-    # Values to append (list of rows, each row is a list of columns)
-    values = [[formatted_now, formatted_yesterday, "Nightly Log", outsideHigh, outsideLow, insideHigh, insideLow, mortality, feedConsumption, waterConsumption, avgWeight, coolerTempTimeAM, coolerTempAM, coolerTempTimePM, coolerTempPM, lightOnTime, lightOffTime]]
 
     body = {
         'values': values
