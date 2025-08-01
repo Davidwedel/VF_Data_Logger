@@ -6,8 +6,18 @@ import glob
 import os
 import xml.etree.ElementTree as ET
 from datetime import date, timedelta, datetime
-import json
+#import json
 from zoneinfo import ZoneInfo
+
+# Shared variables for all functions
+xmlFolder = None
+failed_dir = "./corrupt_files"
+howLongToSaveOldFiles = None
+getCoolerTempAM = None
+getCoolerTempPM = None
+coolerTempTimeTolerance = None
+time_zone = None
+SPREADSHEET_ID = None
 
 def round_hhmm_to_15(s: str) -> str:
     # deal with Not available strings
@@ -258,37 +268,30 @@ def getCoolerTemp(theTime, theTolerance, theName):
         print(f"Failed to process {closest_file}: {e}")
             
 ##handle arguments
-parser = argparse.ArgumentParser()
+#parser = argparse.ArgumentParser()
 
-parser.add_argument(
-    '--donotsend', '-N',
-    action='store_true',
-    help='Do everything except actually send.'
-)
-args = parser.parse_args()
+#parser.add_argument(
+#    '--donotsend', '-N',
+#    action='store_true',
+#    help='Do everything except actually send.'
+#)
+#args = parser.parse_args()
 
 
-# Load secrets
-#with open("secrets.json", "r") as f:
-#    secrets = json.load(f)
-    
-#folder where XML files are stored (change if needed)
-xmlFolder = secrets["path_to_xmls"]
+def do_xml_setup(secrets):
 
-#folder to store the failed xmls for diagnostics
-failed_dir = "./corrupt_files"
+    global xmlFolder, howLongToSaveOldFiles, getCoolerTempAM, getCoolerTempPM
+    global coolerTempTimeTolerance, time_zone, SPREADSHEET_ID
 
-#days. 0 never deletes
-howLongToSaveOldFiles = secrets["how_long_to_save_old_files"]
-
-getCoolerTempAM = secrets["get_cooler_temp_AM"]
-getCoolerTempPM = secrets["get_cooler_temp_PM"]
-coolerTempTimeTolerance = secrets["cooler_temp_time_tolerance"]
-time_zone = secrets["time_zone"]
+    xmlFolder = secrets["path_to_xmls"]
+    howLongToSaveOldFiles = secrets["how_long_to_save_old_files"]
+    getCoolerTempAM = secrets["get_cooler_temp_AM"]
+    getCoolerTempPM = secrets["get_cooler_temp_PM"]
+    coolerTempTimeTolerance = secrets["cooler_temp_time_tolerance"]
+    time_zone = secrets["time_zone"]
     SPREADSHEET_ID = secrets["spreadsheet_id"]
-
-def startup():
-
+def run_xml_stuff():
+    databack = []
     #start figuring various things we need to know
 
     #get yesterday's date, as formatted in the xml filename I.E. YYYYMMDD(20250722)
@@ -306,6 +309,7 @@ def startup():
         last_yesterdayFile = max(xmlNameOnly, key=lambda f: datetime.strptime(os.path.basename(f)[:14], "%Y%m%d%H%M%S"))
     else:
         print("No files found for yesterday. Exiting...")
+        return None
         #exit()
 
     #end figuring various things we need to know
@@ -321,8 +325,15 @@ def startup():
 
     #parse all files from yesterday and average the outside temp
     #return outsideHigh, outsideLow, insideHigh, insideLow !!What gets returned!!
-    databack = doProcessingOnAllFiles(yesterdayFiles)
+    databack.append(doProcessingOnAllFiles(yesterdayFiles))
     #print(databack)
+
+    #returns mortality, feed consumption, water consumption, average weight
+    databack.append(everythingfromlastfile(last_yesterdayFile))
+
+    print(databack)
+     
+    return databack
 
     outsideHigh = c_to_f(databack[0])
     outsideLow = c_to_f(databack[1])
