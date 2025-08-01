@@ -209,6 +209,7 @@ def everythingfromlastfile(last_yesterdayFile):
             shutil.move(last_yesterdayFile, dst)
 
 def deleteOldFiles():
+    print(f"howlong {howLongToSaveOldFiles}")
     if howLongToSaveOldFiles == 0:
         print("File Deletion shut off!")
     else:

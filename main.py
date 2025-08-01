@@ -58,13 +58,15 @@ service = build('sheets', 'v4', credentials=creds)
 
 ##End of Google Sheets stuff
 
-#do_xml_setup(secrets)
-#valuesFromXML = run_xml_stuff()
-#write_to_sheet(valuesFromXML, SPREADSHEET_ID, XML_TO_SHEET_RANGE_NAME, service)
+if not args.LogToUnitas:
+    do_xml_setup(secrets)
+    valuesFromXML = run_xml_stuff()
+    write_to_sheet(valuesFromXML, SPREADSHEET_ID, XML_TO_SHEET_RANGE_NAME, service)
 
-do_unitas_setup(secrets)
-valuesToSend = read_from_sheet(SPREADSHEET_ID, SHEET_TO_UNITAS_RANGE_NAME, service)
-run_unitas_stuff(valuesToSend)
+if not args.LogToSheet
+    do_unitas_setup(secrets)
+    valuesToSend = read_from_sheet(SPREADSHEET_ID, SHEET_TO_UNITAS_RANGE_NAME, service)
+    run_unitas_stuff(valuesToSend)
 
 #delete all old files, so directory doesn't fill up.
 if not args.NoDelete:
