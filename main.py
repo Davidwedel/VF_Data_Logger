@@ -91,14 +91,15 @@ else:
     do_xml_setup(secrets)
 
     do_unitas_stuff = False
-    already_ran_today = False
+    xml_to_sheet_ran = False
+    sheet_to_unitas_ran = False
 
     try:
         while True:
             now = datetime.datetime.now()
 
-            if now.hour == 0 and now.minute == 15:
-                if not already_ran_today:
+            if now.hour == 18 and now.minute == 18:
+                if not xml_to_sheet_ran:
                     
                     if not args.LogToUnitas:
                         # log from XML file to sheets
@@ -109,13 +110,13 @@ else:
                         if not args.NoDelete:
                             deleteOldFiles()
 
-                    logged_from_xml = True
+                    xml_to_sheet_ran = True
 
             elif now.hour == 0 and now.minute == 00:
-                logged_from_xml = False  # Reset at midnight 
-                already_ran_today = False
+                sheet_to_unitas_ran = False  # Reset at midnight 
+                xml_to_sheet_ran = False
 
-            elif already_ran_today and not sent_to_unitas:
+            elif xml_to_sheet_ran and not sheet_to_unitas_ran:
                 if not args.LogToSheet:
                     do_unitas_stuff = read_from_cell(SPREADSHEET_ID, checkbox_cell, service)
                     print(f"Status: {do_unitas_stuff}")
@@ -123,7 +124,7 @@ else:
                         valuesToSend = read_from_sheet(SPREADSHEET_ID, SHEET_TO_UNITAS_RANGE_NAME, service)
                         run_unitas_stuff(valuesToSend)
 
-                        already_ran_today = True
+                        sheet_to_unitas_ran = True
 
                 
 
