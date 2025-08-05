@@ -90,34 +90,37 @@ else
 
     do_unitas_stuff = False
 
-    while True:
-        now = datetime.datetime.now()
+    try:
+        while True:
+            now = datetime.datetime.now()
 
-        if now.hour == 0 and now.minute == 15:
-            if not already_ran_today:
+            if now.hour == 0 and now.minute == 15:
+                if not already_ran_today:
+                    
+                    if not args.LogToUnitas:
+                        # log from XML file to sheets
+                        valuesFromXML = run_xml_stuff()
+                        write_to_sheet(valuesFromXML, SPREADSHEET_ID, XML_TO_SHEET_RANGE_NAME, service)
+
+                        #delete all old files, so directory doesn't fill up.
+                        if not args.NoDelete:
+                            deleteOldFiles()
+
+                    logged_from_xml = True
+
+            elif now.hour == 23 and now.minute >= 55:
+                logged_from_xml = False  # Reset at 1 AM
+
+            elif already_ran_today and not sent_to_unitas:
+                if not args.LogToSheet
+                    do_unitas_stuff = read_from_cell(SPREADSHEET_ID, checkbox_cell, service)
+                    print(f"Status: {do_unitas_stuff}")
+                    if do_unitas_stuff:
+                        valuesToSend = read_from_sheet(SPREADSHEET_ID, SHEET_TO_UNITAS_RANGE_NAME, service)
+                        run_unitas_stuff(valuesToSend)
+
                 
-                if not args.LogToUnitas:
-                    # log from XML file to sheets
-                    valuesFromXML = run_xml_stuff()
-                    write_to_sheet(valuesFromXML, SPREADSHEET_ID, XML_TO_SHEET_RANGE_NAME, service)
 
-                    #delete all old files, so directory doesn't fill up.
-                    if not args.NoDelete:
-                        deleteOldFiles()
-
-                logged_from_xml = True
-
-        elif now.hour == 23 and now.minute >= 55:
-            logged_from_xml = False  # Reset at 1 AM
-
-        elif already_ran_today and not sent_to_unitas:
-            if not args.LogToSheet
-                do_unitas_stuff = read_from_cell(SPREADSHEET_ID, checkbox_cell, service)
-                print(f"Status: {do_unitas_stuff}")
-                if do_unitas_stuff:
-                    valuesToSend = read_from_sheet(SPREADSHEET_ID, SHEET_TO_UNITAS_RANGE_NAME, service)
-                    run_unitas_stuff(valuesToSend)
-
-            
-
-       time.sleep(30)
+           time.sleep(10)
+    except KeyboardInterrupt:
+        print("Stopped by user")
