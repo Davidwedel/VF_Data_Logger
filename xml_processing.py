@@ -281,7 +281,7 @@ def run_xml_stuff():
 
     #get yesterday's date, as formatted in the xml filename I.E. YYYYMMDD(20250722)
     yesterday = (date.today() - timedelta(days=1)).strftime("%Y%m%d")
-    yesterday = date.today().strftime("%Y%m%d")
+    #yesterday = date.today().strftime("%Y%m%d")
 
     #print("Yesterday:" + yesterday)
 
