@@ -64,7 +64,7 @@ creds = service_account.Credentials.from_service_account_file(
 service = build('sheets', 'v4', credentials=creds)
 
 #checkbox log cell
-checkbox_cell = "Send_To_Bot!BD3"
+checkbox_cell = "Send_To_Bot!BD3:BD3"
 
 ##End of Google Sheets stuff
 
@@ -118,7 +118,7 @@ else:
 
             elif xml_to_sheet_ran and not sheet_to_unitas_ran:
                 if not args.LogToSheet:
-                    do_unitas_stuff = read_from_cell(SPREADSHEET_ID, checkbox_cell, service)
+                    do_unitas_stuff = read_from_sheet(SPREADSHEET_ID, checkbox_cell, service)
                     print(f"Status: {do_unitas_stuff}")
                     if do_unitas_stuff:
                         valuesToSend = read_from_sheet(SPREADSHEET_ID, SHEET_TO_UNITAS_RANGE_NAME, service)
