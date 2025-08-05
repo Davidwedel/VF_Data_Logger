@@ -3,3 +3,4 @@ Implement Telegram bot for warnings
 
 If bored:
 revamp cooler temp stuff to just grab the latest xml at the correct time instead of parsing each file to find the right temp/time
+delete old files in the "corrupt_files" dir

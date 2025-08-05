@@ -34,3 +34,14 @@ def read_from_sheet(SPREADSHEET_ID, RANGE_NAME, service):
 
     print(values)
     return values
+
+def read_from_cell(SPREADSHEET_ID, RANGE_NAME, service):
+    `
+    resp = service.spreadsheets().values().get(
+        spreadsheetId=SPREADSHEET_ID,
+        range=RANGE_NAME
+    ).execute()
+
+    value = resp.get("values", [])  # type: list[list[str]]
+
+

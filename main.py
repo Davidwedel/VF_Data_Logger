@@ -31,6 +31,11 @@ parser.add_argument(
     action='store_true',
     help="Don't delete old XML files"
 )
+parser.add_argument(
+    '--SingleRun', '-SR',
+    action='store_true',
+    help="Run once, for single log, not the forever run"
+)
 args = parser.parse_args()
 
 # Load secrets
@@ -56,18 +61,63 @@ creds = service_account.Credentials.from_service_account_file(
 # Build the Sheets API client
 service = build('sheets', 'v4', credentials=creds)
 
+#checkbox log cell
+checkbox_cell = Send_To_Bot!BD3
+
 ##End of Google Sheets stuff
 
-if not args.LogToUnitas:
-    do_xml_setup(secrets)
-    valuesFromXML = run_xml_stuff()
-    write_to_sheet(valuesFromXML, SPREADSHEET_ID, XML_TO_SHEET_RANGE_NAME, service)
+if args.SingleRun:
+    print(f"Running in Single Run mode.")
+    if not args.LogToUnitas:
+        do_xml_setup(secrets)
+        valuesFromXML = run_xml_stuff()
+        write_to_sheet(valuesFromXML, SPREADSHEET_ID, XML_TO_SHEET_RANGE_NAME, service)
+        #delete all old files, so directory doesn't fill up.
+        if not args.NoDelete:
+            deleteOldFiles()
 
-if not args.LogToSheet
+
+    if not args.LogToSheet
+        do_unitas_setup(secrets)
+        valuesToSend = read_from_sheet(SPREADSHEET_ID, SHEET_TO_UNITAS_RANGE_NAME, service)
+        run_unitas_stuff(valuesToSend)
+
+else
+    print(f"Running in Forever Run mode.")
+
     do_unitas_setup(secrets)
-    valuesToSend = read_from_sheet(SPREADSHEET_ID, SHEET_TO_UNITAS_RANGE_NAME, service)
-    run_unitas_stuff(valuesToSend)
+    do_xml_setup(secrets)
 
-#delete all old files, so directory doesn't fill up.
-if not args.NoDelete:
-    deleteOldFiles()
+    do_unitas_stuff = False
+
+    while True:
+        now = datetime.datetime.now()
+
+        if now.hour == 0 and now.minute == 15:
+            if not already_ran_today:
+                
+                if not args.LogToUnitas:
+                    # log from XML file to sheets
+                    valuesFromXML = run_xml_stuff()
+                    write_to_sheet(valuesFromXML, SPREADSHEET_ID, XML_TO_SHEET_RANGE_NAME, service)
+
+                    #delete all old files, so directory doesn't fill up.
+                    if not args.NoDelete:
+                        deleteOldFiles()
+
+                logged_from_xml = True
+
+        elif now.hour == 23 and now.minute >= 55:
+            logged_from_xml = False  # Reset at 1 AM
+
+        elif already_ran_today and not sent_to_unitas:
+            if not args.LogToSheet
+                do_unitas_stuff = read_from_cell(SPREADSHEET_ID, checkbox_cell, service)
+                print(f"Status: {do_unitas_stuff}")
+                if do_unitas_stuff:
+                    valuesToSend = read_from_sheet(SPREADSHEET_ID, SHEET_TO_UNITAS_RANGE_NAME, service)
+                    run_unitas_stuff(valuesToSend)
+
+            
+
+       time.sleep(30)
