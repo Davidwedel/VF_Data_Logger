@@ -1,3 +1,4 @@
+import time
 import argparse
 from xml_processing import do_xml_setup, run_xml_stuff, deleteOldFiles
 from sheets_processing import read_from_sheet, write_to_sheet
@@ -6,6 +7,7 @@ import os
 import json
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
+import datetime
 ##Google Sheets stuff
 
 ##handle arguments
@@ -62,7 +64,7 @@ creds = service_account.Credentials.from_service_account_file(
 service = build('sheets', 'v4', credentials=creds)
 
 #checkbox log cell
-checkbox_cell = Send_To_Bot!BD3
+checkbox_cell = "Send_To_Bot!BD3"
 
 ##End of Google Sheets stuff
 
@@ -77,18 +79,19 @@ if args.SingleRun:
             deleteOldFiles()
 
 
-    if not args.LogToSheet
+    if not args.LogToSheet:
         do_unitas_setup(secrets)
         valuesToSend = read_from_sheet(SPREADSHEET_ID, SHEET_TO_UNITAS_RANGE_NAME, service)
         run_unitas_stuff(valuesToSend)
 
-else
+else:
     print(f"Running in Forever Run mode.")
 
     do_unitas_setup(secrets)
     do_xml_setup(secrets)
 
     do_unitas_stuff = False
+    already_ran_today = False
 
     try:
         while True:
@@ -108,19 +111,22 @@ else
 
                     logged_from_xml = True
 
-            elif now.hour == 23 and now.minute >= 55:
-                logged_from_xml = False  # Reset at 1 AM
+            elif now.hour == 0 and now.minute == 00:
+                logged_from_xml = False  # Reset at midnight 
+                already_ran_today = False
 
             elif already_ran_today and not sent_to_unitas:
-                if not args.LogToSheet
+                if not args.LogToSheet:
                     do_unitas_stuff = read_from_cell(SPREADSHEET_ID, checkbox_cell, service)
                     print(f"Status: {do_unitas_stuff}")
                     if do_unitas_stuff:
                         valuesToSend = read_from_sheet(SPREADSHEET_ID, SHEET_TO_UNITAS_RANGE_NAME, service)
                         run_unitas_stuff(valuesToSend)
 
+                        already_ran_today = True
+
                 
 
-           time.sleep(10)
+            time.sleep(10)
     except KeyboardInterrupt:
         print("Stopped by user")
