@@ -1,3 +1,4 @@
+systemctl stuff for script
 Implement logging to log.txt
 Implement Telegram bot for warnings
 use schedule module to schedule daily log from xmls
