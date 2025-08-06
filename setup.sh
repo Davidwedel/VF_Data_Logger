@@ -1,17 +1,31 @@
-
 #!/bin/bash
 
 set -e
 
 UPLOAD_DIR="/srv/ftp/upload"
+INTERFACE="${1:-enp3s0}"
+STATIC_IP="192.168.1.150/24"
+GATEWAY="192.168.1.1"
+DNS="1.1.1.1"
+NETWORK_FILE="/etc/systemd/network/20-wired.network"
+
+# Auto-detect first non-loopback Ethernet interface
+INTERFACE=$(ip -o link show | awk -F': ' '!/lo|vir|wl/ {print $2; exit}')
+
+if [[ -z "$INTERFACE" ]]; then
+    echo "❌ Could not detect a valid Ethernet interface."
+    exit 1
+fi
+
+echo "[*] Detected network interface: $INTERFACE"
 
 echo "[*] Installing vsftpd..."
 
 # Detect package manager
 if command -v dnf &> /dev/null; then
-    sudo dnf install -y vsftpd
+    sudo dnf install -y vsftpd python3 python3-pip
 elif command -v apt &> /dev/null; then
-    sudo apt update && sudo apt install -y vsftpd
+    sudo apt update && sudo apt install -y vsftpd python3 python3-pip
 else
     echo "Unsupported package manager. Install vsftpd manually."
     exit 1
@@ -63,6 +77,33 @@ fi
 echo "[*] Restarting vsftpd..."
 sudo systemctl restart vsftpd
 sudo systemctl enable vsftpd
+
+### --- Set Static IP via systemd-networkd ---
+echo "[*] Configuring static IP ($STATIC_IP) on $INTERFACE..."
+
+echo "[*] Disabling NetworkManager (if running)..."
+sudo systemctl stop NetworkManager || true
+sudo systemctl disable NetworkManager || true
+
+echo "[*] Enabling systemd-networkd..."
+sudo systemctl enable --now systemd-networkd
+
+echo "[*] Writing $NETWORK_FILE..."
+sudo bash -c "cat > $NETWORK_FILE" <<EOF
+[Match]
+Name=$INTERFACE
+
+[Network]
+Address=$STATIC_IP
+Gateway=$GATEWAY
+DNS=$DNS
+EOF
+
+echo "[*] Restarting systemd-networkd..."
+sudo systemctl restart systemd-networkd
+
+python3 -m venv .venv
+.venv/bin/pip install -r requirements.txt
 
 echo ""
 echo "✅ FTP server is running."
