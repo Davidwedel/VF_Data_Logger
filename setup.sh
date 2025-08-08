@@ -74,6 +74,20 @@ if command -v firewall-cmd &> /dev/null; then
     sudo firewall-cmd --reload
 fi
 
+echo "[*] Checking if SELinux exists..."
+
+# Check if SELinux is installed
+if ! command -v getenforce &> /dev/null; then
+    echo "SELinux is not installed."
+    exit 1
+else
+    echo "SELinux is installed. Configuring..."
+sudo setsebool -P allow_ftpd_anon_write=1
+sudo semanage fcontext -a -t public_content_rw_t "($UPLOAD_DIR)(/.*)?"
+sudo restorecon -Rv ($UPLOAD_DIR)
+fi
+
+
 echo "[*] Restarting vsftpd..."
 sudo systemctl restart vsftpd
 sudo systemctl enable vsftpd
