@@ -98,7 +98,7 @@ else:
         while True:
             now = datetime.datetime.now()
 
-            if now.hour == 18 and now.minute == 18:
+            if now.hour == 0 and now.minute == 15:
                 if not xml_to_sheet_ran:
                     
                     if not args.LogToUnitas:
@@ -119,7 +119,6 @@ else:
             elif xml_to_sheet_ran and not sheet_to_unitas_ran:
                 if not args.LogToSheet:
                     do_unitas_stuff = read_from_sheet(SPREADSHEET_ID, checkbox_cell, service)
-                    print(f"Status: {do_unitas_stuff}")
                     if do_unitas_stuff:
                         valuesToSend = read_from_sheet(SPREADSHEET_ID, SHEET_TO_UNITAS_RANGE_NAME, service)
                         run_unitas_stuff(valuesToSend)

@@ -29,9 +29,9 @@ def read_from_sheet(SPREADSHEET_ID, RANGE_NAME, service):
     values = resp.get("values", [])  # type: list[list[str]]
 
     cols = (count_columns_in_range(RANGE_NAME) - 1)
-    print(cols)
+    #print(cols)
     values = [row + [""] * (cols - len(row)) for row in values]
 
-    print(values)
+    #print(values)
     return values
 
