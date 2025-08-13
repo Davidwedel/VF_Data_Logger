@@ -30,9 +30,11 @@ Uses Google Sheets API to log a daily summary to Google Sheets
 
 Allows the User to enter data not contained in the Rotem into the spreadsheet.
 
+Automatically fills out the data in the Unitas Website, so all the User has to do is look over the data and Save.
+
 ### 🔧 Setup
 Requirements:
-* You will need to have computer with a screen, running a Linux distro, on the same local network as your Rotem Communicator. This software may not work on Windows.
+* You will need to have computer with a screen, running a Linux distro (I recommend Fedora, it's what I'm using, so it's most likely to work) , on the same local network as your Rotem Communicator. This software may (will) not work on Windows.
 * You will need to have Python, Git, vsftpd, and Pip installed on the computer. There are better guides elsewhere on the internet than I can write up here.
 1. Set up FTP Server/Client<br>
     * Set up FTP server on your computer:<br>
@@ -100,18 +102,6 @@ Requirements:
 Make sure credentials.json and secrets.json are present, then simply run:
 
 ```.venv/bin/python nightly_bot.py```
-
-This will:
-
-    Parse yesterday’s XML files
-
-    Append data to your Google Sheet
-
-    Delete old files if enabled
-
-## Information
-You will need to set your Rotem to log XML files to your FTP server. <br>
-Add the script to cron to run sometime after midnight.
 
 ## License
 
