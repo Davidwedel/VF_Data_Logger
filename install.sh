@@ -2,6 +2,14 @@
 
 set -e
 
+# Stuff for Systemd
+APP_NAME="datalogger"
+PYTHON_SCRIPT="/home/$USER/VF_Data_Logger/main.py"
+VENV="/home/$USER/projects/VF_Data_Logger/.venv/bin/python"
+SERVICE_FILE="/etc/systemd/system/${APP_NAME}.service"
+
+# End of
+
 UPLOAD_DIR="/srv/ftp/upload"
 INTERFACE="${1:-enp3s0}"
 STATIC_IP="192.168.1.150/24"
@@ -14,7 +22,7 @@ INTERFACE=$(ip -o link show | awk -F': ' '!/lo|vir|wl/ {print $2; exit}')
 
 if [[ -z "$INTERFACE" ]]; then
     echo "❌ Could not detect a valid Ethernet interface."
-    exit 1
+    #exit 1
 fi
 
 echo "[*] Detected network interface: $INTERFACE"
@@ -135,3 +143,33 @@ echo ""
 echo "✅ FTP server is running."
 echo "📂 Anonymous uploads are allowed at: ftp://<your-ip-address>/upload/"
 echo "   (Replace <your-ip-address> with the IP of this machine.)"
+
+
+echo "Creating systemd service file..."
+
+sudo tee $SERVICE_FILE > /dev/null <<EOF
+[Unit]
+Description=VF Data Logger GUI
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=$VENV $PYTHON_SCRIPT
+WorkingDirectory=$(dirname "$PYTHON_SCRIPT")
+Restart=on-failure
+User=$USER
+Environment=DISPLAY=:0
+Environment=XAUTHORITY=/home/$USER/.Xauthority
+
+[Install]
+WantedBy=graphical.target
+EOF
+
+echo "Reloading systemd..."
+sudo systemctl daemon-reload
+
+echo "Enabling service to start on boot..."
+sudo systemctl enable $APP_NAME.service
+
+echo "You can start it now with:"
+echo "  sudo systemctl start $APP_NAME.service"

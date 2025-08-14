@@ -6,6 +6,7 @@ import os
 
 CONFIG_FILE = "../secrets.json"
 GOOGLE_SHEET_COPY = "https://docs.google.com/spreadsheets/d/1Hkw_o8hdZHK3YLs8V5oBWMliJEVMIa8vcZzKqIVdKF0/copy"
+SERVICE_NAME = "vf_data_logger.service"
 
 DEFAULT_CONFIG = {
     "spreadsheet_id": "",
@@ -62,7 +63,7 @@ class ConfigEditor:
         menu_button.grid(row=0, column=0, sticky="nw", padx=5, pady=5)
         menu = tk.Menu(menu_button, tearoff=0)
         menu.add_command(label="Copy Google Sheet", command=self.option1)
-        menu.add_command(label="Option 2", command=self.option2)
+        menu.add_command(label="Start Automatic Data Logger Service", command=self.option2)
         menu.add_command(label="Option 3", command=self.option3)
         menu_button.config(menu=menu)
 
@@ -166,7 +167,12 @@ class ConfigEditor:
         #messagebox.showinfo("Menu", "Option 1 clicked!")
 
     def option2(self):
-        messagebox.showinfo("Menu", "Option 2 clicked!")
+        #messagebox.showinfo("Menu", "Option 2 clicked!")
+
+        try:
+            print(f"Service '{SERVICE_NAME}' started successfully.")
+        except subprocess.CalledProcessError as e:
+            print(f"Failed to start service: {e}")
 
     def option3(self):
         messagebox.showinfo("Menu", "Option 3 clicked!")
