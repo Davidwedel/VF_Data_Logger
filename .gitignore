@@ -5,3 +5,4 @@ credentials.json
 *.xml
 environment.json
 __pycache__
+ignored/
