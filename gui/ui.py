@@ -1,21 +1,38 @@
-
 import tkinter as tk
 from tkinter import filedialog, messagebox, Toplevel
 import json
 import os
-from datetime import time
 
-CONFIG_FILE = "config.json"
+CONFIG_FILE = "../secrets.json"
 
 DEFAULT_CONFIG = {
     "spreadsheet_id": "",
-    "range_name": "",
+    "xml_to_sheet_range_name": "",
     "path_to_xmls": "",
-    "how_long_to_save_old_files": 5,
+    "how_long_to_save_old_files": 2,
     "get_cooler_temp_AM": "06:00:00",
     "get_cooler_temp_PM": "18:00:00",
     "cooler_temp_time_tolerance": "00:30:00",
-    "time_zone": "America/Chicago"
+    "time_zone": "America/Chicago",
+    "Unitas_Username": "",
+    "Unitas_Password": "",
+    "Farm_ID": "",
+    "House_ID": "",
+    "Timeout": "",
+    "sheet_to_unitas_range_name": ""
+}
+
+# Map internal keys to user-friendly labels
+FIELD_LABELS = {
+    "spreadsheet_id": "Google Spreadsheet ID",
+    "how_long_to_save_old_files": "Days to Keep Old Files (0 to disable, 2 recommended)",
+    "get_cooler_temp_AM": "Get Cooler Temp Time AM",
+    "get_cooler_temp_PM": "Get Cooler Temp Time PM",
+    "time_zone": "Time Zone",
+    "Unitas_Username": "Unitas Username",
+    "Unitas_Password": "Unitas Password",
+    "Farm_ID": "Unitas Farm ID",
+    "House_ID": "Unitas House Id"
 }
 
 TIME_FIELDS = [
@@ -23,6 +40,8 @@ TIME_FIELDS = [
     "get_cooler_temp_PM",
     "cooler_temp_time_tolerance"
 ]
+
+VISIBLE_FIELDS = list(FIELD_LABELS.keys())
 
 class ConfigEditor:
     def __init__(self, root):
@@ -34,22 +53,17 @@ class ConfigEditor:
         self.load_config()
         self.create_form()
 
-        # Use grid instead of pack to avoid geometry manager conflict
+        # Buttons
         btn_frame = tk.Frame(root)
-        btn_frame.grid(
-            row=len(self.config),  # place after all form rows
-            column=0,
-            columnspan=2,
-            pady=10
-        )
-
+        btn_frame.grid(row=len(VISIBLE_FIELDS), column=0, columnspan=2, pady=10)
         tk.Button(btn_frame, text="Save", command=self.save_config).pack(side=tk.LEFT, padx=5)
         tk.Button(btn_frame, text="Load", command=self.load_config).pack(side=tk.LEFT, padx=5)
         tk.Button(btn_frame, text="Quit", command=root.quit).pack(side=tk.LEFT, padx=5)
 
     def create_form(self):
-        for i, (key, value) in enumerate(self.config.items()):
-            tk.Label(self.root, text=key).grid(row=i, column=0, sticky="e", padx=5, pady=3)
+        for i, key in enumerate(VISIBLE_FIELDS):
+            value = self.config.get(key, "")
+            tk.Label(self.root, text=FIELD_LABELS.get(key, key)).grid(row=i, column=0, sticky="e", padx=5, pady=3)
 
             if key == "path_to_xmls":
                 frame = tk.Frame(self.root)
@@ -120,10 +134,9 @@ class ConfigEditor:
         else:
             self.config = DEFAULT_CONFIG.copy()
 
-        if self.entries:
-            for key, entry in self.entries.items():
-                entry.delete(0, tk.END)
-                entry.insert(0, str(self.config.get(key, "")))
+        for key, entry in self.entries.items():
+            entry.delete(0, tk.END)
+            entry.insert(0, str(self.config.get(key, "")))
 
     def save_config(self):
         try:
@@ -131,12 +144,15 @@ class ConfigEditor:
                 value = entry.get()
                 if key == "how_long_to_save_old_files":
                     value = int(value)
-                self.config[key] = value  # save all keys
+                self.config[key] = value
+
             with open(CONFIG_FILE, "w") as f:
                 json.dump(self.config, f, indent=2)
+
             messagebox.showinfo("Success", "Configuration saved successfully!")
         except Exception as e:
             messagebox.showerror("Error", f"Failed to save config: {e}")
+
 
 if __name__ == "__main__":
     root = tk.Tk()
