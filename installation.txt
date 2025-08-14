@@ -1,4 +1,0 @@
-git clone https://github.com/Davidwedel/VF_Data_Logger.git
-cd VF_Data_Logger
-python3 -m venv .venv
-.venv/bin/pip install -r requirements.txt
