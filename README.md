@@ -34,8 +34,8 @@ Automatically fills out the data in the Unitas Website, so all the User has to d
 
 ### 🔧 Setup
 Requirements:
-* You will need to have computer with a screen, running a Linux distro (I recommend Fedora, it's what I'm using, so it's most likely to work) , on the same local network as your Rotem Communicator. This software may (will) not work on Windows.
-* You will need to have Python, Git, vsftpd, and Pip installed on the computer. There are better guides elsewhere on the internet than I can write up here.
+* You will need to have computer with a screen, running a Linux distro (I recommend Fedora XFCE, it's what I'm using, so it's most likely to work) , on the same local network as your Rotem Communicator. This software may (will) not work on Windows.
+* You will need to have Git installed on the computer. There are better guides elsewhere on the internet than I can write up here.
 1. Set up FTP Server/Client<br>
     * Set up FTP server on your computer:<br>
         * Coming soon...<br>
@@ -60,18 +60,10 @@ Requirements:
 
 2. Clone the Repository
 
-    ```cd /srv/ftp```<br>
-    ```sudo mkdir VF_Data_Logger```<br>
-    ```sudo chown -R (yourusername) VF_Data_Logger```<br>
+    ```cd ~```<br>
     ```git clone https://github.com/Davidwedel/VF_Data_Logger.git```<br>
-    ```cd VF_Data_Logger```<br>
-    ```python3 -m venv .venv```<br>
-
-3. Install Dependencies
-
-    Use pip to install required Python packages:
-
-    ```.venv/bin/pip install -r requirements.txt```
+    ```cd VF_Data_Logger```
+    ```bash install.sh```
 
 4. Set Up Google API Credentials
 
@@ -84,24 +76,12 @@ Requirements:
    * Download the credentials.json file into the project root(Note that this file may not be named credentials.json. It will be a JSON file. Rename it.
 
    * Open your spreadsheet and give editor permissions to the service account’s email (e.g., your-service-account@project.iam.gserviceaccount.com).
-## 🔐 Configure secrets.json
-
-1. Copy the data in examplesecrets.json to a file called secrets.json
-   * Explanation of Fields
-        * spreadsheet_id:                  The ID from the URL of your Google Sheet<br>
-        * range_name:                      The sheet and starting cell to append data (e.g., "Sheet1!A1")<br>
-        * path_to_xmls:                    Full path to the folder containing .xml files<br>
-        * how_long_to_save_old_files:     Number of days to keep XMLs (0 disables deletion)<br>
-        * get_cooler_temp_AM:             Target time to get cooler room temp in the morning (HH:MM:SS format)<br>
-        * get_cooler_temp_PM:             Target time for cooler temp in the evening<br>
-        * cooler_temp_time_tolerance:     How far from the target time to search for readings (e.g., "00:30")<br>
-        * time_zone:                      Your local timezone in IANA format (e.g., "America/Chicago")<br>
         
 ## ✅ Running the Script
 
 Make sure credentials.json and secrets.json are present, then simply run:
 
-```.venv/bin/python nightly_bot.py```
+```.venv/bin/python main.py```
 
 ## License
 
