@@ -65,15 +65,7 @@ class ConfigEditor:
             value = self.config.get(key, "")
             tk.Label(self.root, text=FIELD_LABELS.get(key, key)).grid(row=i, column=0, sticky="e", padx=5, pady=3)
 
-            if key == "path_to_xmls":
-                frame = tk.Frame(self.root)
-                frame.grid(row=i, column=1, sticky="w")
-                entry = tk.Entry(frame, width=40)
-                entry.insert(0, str(value))
-                entry.pack(side=tk.LEFT)
-                tk.Button(frame, text="Browse", command=lambda e=entry: self.browse_folder(e)).pack(side=tk.LEFT, padx=5)
-
-            elif key in TIME_FIELDS:
+            if key in TIME_FIELDS:
                 frame = tk.Frame(self.root)
                 frame.grid(row=i, column=1, sticky="w")
                 entry = tk.Entry(frame, width=15)
