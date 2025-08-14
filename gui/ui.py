@@ -1,10 +1,11 @@
-
+import webbrowser
 import tkinter as tk
 from tkinter import filedialog, messagebox, Toplevel
 import json
 import os
 
 CONFIG_FILE = "../secrets.json"
+GOOGLE_SHEET_COPY = "https://docs.google.com/spreadsheets/d/1Hkw_o8hdZHK3YLs8V5oBWMliJEVMIa8vcZzKqIVdKF0/copy"
 
 DEFAULT_CONFIG = {
     "spreadsheet_id": "",
@@ -60,7 +61,7 @@ class ConfigEditor:
         menu_button = tk.Menubutton(main_frame, text="☰", relief=tk.RAISED)
         menu_button.grid(row=0, column=0, sticky="nw", padx=5, pady=5)
         menu = tk.Menu(menu_button, tearoff=0)
-        menu.add_command(label="Option 1", command=self.option1)
+        menu.add_command(label="Copy Google Sheet", command=self.option1)
         menu.add_command(label="Option 2", command=self.option2)
         menu.add_command(label="Option 3", command=self.option3)
         menu_button.config(menu=menu)
@@ -161,7 +162,8 @@ class ConfigEditor:
 
     # --- Hamburger menu options ---
     def option1(self):
-        messagebox.showinfo("Menu", "Option 1 clicked!")
+        webbrowser.get("firefox").open(GOOGLE_SHEET_COPY)
+        #messagebox.showinfo("Menu", "Option 1 clicked!")
 
     def option2(self):
         messagebox.showinfo("Menu", "Option 2 clicked!")
