@@ -43,56 +43,56 @@ TIME_FIELDS = [
 
 VISIBLE_FIELDS = list(FIELD_LABELS.keys())
 
+
 class ConfigEditor:
     def __init__(self, root):
         self.root = root
         self.root.title("Configuration Editor")
         self.entries = {}
         self.config = DEFAULT_CONFIG.copy()
-
         self.load_config()
-        self.create_form()
 
-        # Buttons at the bottom
-        btn_frame = tk.Frame(root)
-        btn_frame.pack(side=tk.BOTTOM, pady=10)
-        tk.Button(btn_frame, text="Save", command=self.save_config).pack(side=tk.LEFT, padx=5)
-        tk.Button(btn_frame, text="Load", command=self.load_config).pack(side=tk.LEFT, padx=5)
-        tk.Button(btn_frame, text="Quit", command=root.quit).pack(side=tk.LEFT, padx=5)
+        # Main frame using grid
+        main_frame = tk.Frame(root)
+        main_frame.grid(row=0, column=0, padx=10, pady=10)
 
-    def create_form(self):
-        # Main form frame
-        form_frame = tk.Frame(self.root)
-        form_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=10, pady=10)
-
-        # Hamburger menu button
-        menu_button = tk.Menubutton(self.root, text="☰", relief=tk.RAISED)
-        menu_button.pack(side=tk.RIGHT, padx=5, pady=5)
+        # Hamburger menu button at top-right
+        menu_button = tk.Menubutton(main_frame, text="☰", relief=tk.RAISED)
+        menu_button.grid(row=0, column=0, sticky="nw", padx=5, pady=5)
         menu = tk.Menu(menu_button, tearoff=0)
         menu.add_command(label="Option 1", command=self.option1)
         menu.add_command(label="Option 2", command=self.option2)
         menu.add_command(label="Option 3", command=self.option3)
         menu_button.config(menu=menu)
 
-        # Form fields
+        # Create the form entries below the menu
+        self.create_form(main_frame)
+
+        # Buttons frame below form
+        btn_frame = tk.Frame(main_frame)
+        btn_frame.grid(row=len(VISIBLE_FIELDS), column=0, columnspan=2, pady=10)
+        tk.Button(btn_frame, text="Save", command=self.save_config).pack(side=tk.LEFT, padx=5)
+        tk.Button(btn_frame, text="Load", command=self.load_config).pack(side=tk.LEFT, padx=5)
+        tk.Button(btn_frame, text="Quit", command=root.quit).pack(side=tk.LEFT, padx=5)
+
+    def create_form(self, parent):
         for i, key in enumerate(VISIBLE_FIELDS):
             value = self.config.get(key, "")
-            tk.Label(form_frame, text=FIELD_LABELS.get(key, key)).grid(row=i, column=0, sticky="e", padx=5, pady=3)
+            tk.Label(parent, text=FIELD_LABELS.get(key, key)).grid(row=i, column=0, sticky="e", padx=5, pady=3)
 
             if key in TIME_FIELDS:
-                entry_frame = tk.Frame(form_frame)
-                entry_frame.grid(row=i, column=1, sticky="w")
-                entry = tk.Entry(entry_frame, width=15)
+                frame = tk.Frame(parent)
+                frame.grid(row=i, column=1, sticky="w")
+                entry = tk.Entry(frame, width=15)
                 entry.insert(0, str(value))
                 entry.pack(side=tk.LEFT)
-                tk.Button(entry_frame, text="⏱", command=lambda e=entry: self.pick_time(e)).pack(side=tk.LEFT, padx=5)
+                tk.Button(frame, text="⏱", command=lambda e=entry: self.pick_time(e)).pack(side=tk.LEFT, padx=5)
             else:
-                entry = tk.Entry(form_frame, width=40)
+                entry = tk.Entry(parent, width=40)
                 entry.insert(0, str(value))
                 entry.grid(row=i, column=1, padx=5, pady=3)
 
             self.entries[key] = entry
-
     # --- Helper methods ---
     def browse_folder(self, entry_widget):
         folder = filedialog.askdirectory()
