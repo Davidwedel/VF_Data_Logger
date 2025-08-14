@@ -35,30 +35,37 @@ Automatically fills out the data in the Unitas Website, so all the User has to d
 ### 🔧 Setup
 Requirements:
 * You will need to have computer with a screen, running a Linux distro (I recommend Fedora XFCE, it's what I'm using, so it's most likely to work) , on the same local network as your Rotem Communicator. This software may (will) not work on Windows.
-* You will need to have Git installed on the computer. There are better guides elsewhere on the internet than I can write up here.
-1. Set up FTP Server/Client<br>
-    * Set up FTP server on your computer:<br>
-        * Coming soon...<br>
+* You will need to have Git installed on the computer.
+1. Set up FTP Client on RotemNet Web<br>
 
-    * Set up FTP client on RotemWeb.<br>
-        Consult the Rotem Communicator Manual, and go to page 88.<br>
-        https://munters.zendesk.com/hc/en-us/article_attachments/21308920512156<br>
-        Using that, fill out the General Settings tab on RotemWeb.<br>
-        Farm Code: Leave this one blank.<br>
-        Integrator Name: Other<br>
-        Dealer: Other<br>
-        Data Provider: Other<br>
-        Accept the license and Save.<br>
+    Click the gear icon and go to Farm Settings.<br>
+    ![Error](./README_imgs/farm_stuff.png)<br>
+    <br>
+    Go to the "General Settings" page.
+    <br>
+    <br>
+    ![Error](./README_imgs/general.png)<br>
+    Configure it like the above image. Then save it.<br>
 
-        Navigate to Data Collection page.<br>
-        Select "FTP", not "SFTP"<br>
-        Host Address: IP Address of your server computer.<br>
-        Port Number: 21<br>
-        Target Folder: /upload<br>
-        User Name: ftp<br>
-        Password: Use your email address<br>
+    Then go to the "Data Collection" page<br>
 
-2. Clone the Repository
+    ![Error](./README_imgs/data_collection.png)<br>
+    Configure it like the above image. Then save it.<br>
+
+    If you run into trouble, try consulting the Rotem Communicator Manual. The FTP Client settings are on page 88.<br>
+    https://munters.zendesk.com/hc/en-us/article_attachments/21308920512156<br>
+
+2. Install Git.
+
+    This section, and the next section are all commands run in the Terminal, or Command Line. <br>
+    Open the Terminal. Most times, this is done by typing ctrl-alt-t.<br>
+    If using Fedora: ```sudo dnf install git```
+
+    If using Ubuntu/Debian/Mint: ```sudo apt install git```
+        
+
+
+3. Clone the Repository
 
     ```cd ~```<br>
     ```git clone https://github.com/Davidwedel/VF_Data_Logger.git```<br>
@@ -67,7 +74,7 @@ Requirements:
 
 4. Set Up Google API Credentials
 
-   * Go to the Google Cloud Console
+   * Go to the [Google Cloud Console](https://console.cloud.google.com/)
 
    * Enable the Google Sheets API
 
