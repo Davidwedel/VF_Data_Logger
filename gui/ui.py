@@ -4,10 +4,11 @@ import tkinter as tk
 from tkinter import filedialog, messagebox, Toplevel
 import json
 import os
+import subprocess
 
 CONFIG_FILE = pathlib.Path(__file__).parent.parent / "secrets.json"
 GOOGLE_SHEET_COPY = "https://docs.google.com/spreadsheets/d/1Hkw_o8hdZHK3YLs8V5oBWMliJEVMIa8vcZzKqIVdKF0/copy"
-SERVICE_NAME = "vf_data_logger.service"
+SERVICE_NAME = "datalogger.service"
 
 DEFAULT_CONFIG = {
     "spreadsheet_id": "",
@@ -171,6 +172,8 @@ class ConfigEditor:
         #messagebox.showinfo("Menu", "Option 2 clicked!")
 
         try:
+        
+            subprocess.run(["systemctl", "start", SERVICE_NAME], check=True)
             print(f"Service '{SERVICE_NAME}' started successfully.")
         except subprocess.CalledProcessError as e:
             print(f"Failed to start service: {e}")
