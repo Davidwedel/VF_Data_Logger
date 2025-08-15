@@ -5,7 +5,7 @@ set -e
 # Stuff for Systemd
 APP_NAME="datalogger"
 PYTHON_SCRIPT="/home/$USER/VF_Data_Logger/main.py"
-VENV="/home/$USER/projects/VF_Data_Logger/.venv/bin/python"
+VENV="/home/$USER/VF_Data_Logger/.venv/bin/python"
 SERVICE_FILE="/etc/systemd/system/${APP_NAME}.service"
 
 # End of
@@ -16,16 +16,6 @@ STATIC_IP="192.168.1.150/24"
 GATEWAY="192.168.1.1"
 DNS="1.1.1.1"
 NETWORK_FILE="/etc/systemd/network/20-wired.network"
-
-# Auto-detect first non-loopback Ethernet interface
-INTERFACE=$(ip -o link show | awk -F': ' '!/lo|vir|wl/ {print $2; exit}')
-
-if [[ -z "$INTERFACE" ]]; then
-    echo "❌ Could not detect a valid Ethernet interface."
-    #exit 1
-fi
-
-echo "[*] Detected network interface: $INTERFACE"
 
 echo "[*] Installing vsftpd..."
 
