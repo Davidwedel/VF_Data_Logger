@@ -112,30 +112,6 @@ echo "[*] Restarting vsftpd..."
 sudo systemctl restart vsftpd
 sudo systemctl enable vsftpd
 
-### --- Set Static IP via systemd-networkd ---
-echo "[*] Configuring static IP ($STATIC_IP) on $INTERFACE..."
-
-echo "[*] Disabling NetworkManager (if running)..."
-sudo systemctl stop NetworkManager || true
-sudo systemctl disable NetworkManager || true
-
-echo "[*] Enabling systemd-networkd..."
-sudo systemctl enable --now systemd-networkd
-
-echo "[*] Writing $NETWORK_FILE..."
-sudo bash -c "cat > $NETWORK_FILE" <<EOF
-[Match]
-Name=$INTERFACE
-
-[Network]
-Address=$STATIC_IP
-Gateway=$GATEWAY
-DNS=$DNS
-EOF
-
-echo "[*] Restarting systemd-networkd..."
-sudo systemctl restart systemd-networkd
-
 python3 -m venv .venv
 .venv/bin/pip install -r requirements.txt
 
