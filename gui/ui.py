@@ -1,10 +1,11 @@
+import pathlib
 import webbrowser
 import tkinter as tk
 from tkinter import filedialog, messagebox, Toplevel
 import json
 import os
 
-CONFIG_FILE = "../secrets.json"
+CONFIG_FILE = pathlib.Path(__file__).parent.parent / "secrets.json"
 GOOGLE_SHEET_COPY = "https://docs.google.com/spreadsheets/d/1Hkw_o8hdZHK3YLs8V5oBWMliJEVMIa8vcZzKqIVdKF0/copy"
 SERVICE_NAME = "vf_data_logger.service"
 
