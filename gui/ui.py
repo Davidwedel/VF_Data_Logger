@@ -17,6 +17,7 @@ DEFAULT_CONFIG = {
     "how_long_to_save_old_files": 2,
     "get_cooler_temp_AM": "06:00:00",
     "get_cooler_temp_PM": "18:00:00",
+    "retrieve_from_xml_time": "00:15:00",
     "cooler_temp_time_tolerance": "00:30:00",
     "time_zone": "America/Chicago",
     "Unitas_Username": "",
@@ -32,6 +33,7 @@ FIELD_LABELS = {
     "how_long_to_save_old_files": "Days to Keep Old Files (0 to disable, 2 recommended)",
     "get_cooler_temp_AM": "Get Cooler Temp Time AM",
     "get_cooler_temp_PM": "Get Cooler Temp Time PM",
+    "retrieve_from_xml_time": "Time to Get yesterdays data from XMLs. (12:15 AM recommended)",
     "time_zone": "Time Zone",
     "Unitas_Username": "Unitas Username",
     "Unitas_Password": "Unitas Password",
@@ -42,6 +44,7 @@ FIELD_LABELS = {
 TIME_FIELDS = [
     "get_cooler_temp_AM",
     "get_cooler_temp_PM",
+    "retrieve_from_xml_time",
     "cooler_temp_time_tolerance"
 ]
 
