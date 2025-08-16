@@ -78,7 +78,7 @@ checkbox_cell = "Send_To_Bot!BD3:BD3"
 
 ##End of Google Sheets stuff
 
-if args.LogToSheet or args.DoXMLStuff or args.DoEverythingNow or args.XMLThenCheckBox or args.LogToUnitas:
+if args.LogToSheet or args.DoXMLStuff or args.XMLThenCheckBox or args.LogToUnitas:
     print(f"Running in Single Run mode.")
 
     # read XMLs, delete
