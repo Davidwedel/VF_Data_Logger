@@ -41,6 +41,14 @@ FIELD_LABELS = {
     "House_ID": "Unitas House Id"
 }
 
+PASSWORD_FIELDS = [
+    "spreadsheet_id",
+    "Unitas_Username",
+    "Unitas_Password",
+    "Farm_ID",
+    "House_ID"
+]
+
 TIME_FIELDS = [
     "get_cooler_temp_AM",
     "get_cooler_temp_PM",
@@ -94,6 +102,26 @@ class ConfigEditor:
                 entry.insert(0, str(value))
                 entry.pack(side=tk.LEFT)
                 tk.Button(frame, text="⏱", command=lambda e=entry: self.pick_time(e)).pack(side=tk.LEFT, padx=5)
+                
+            elif key in PASSWORD_FIELDS:
+                frame = tk.Frame(parent)
+                frame.grid(row=i, column=1, sticky="w", padx=5, pady=3)
+
+                entry = tk.Entry(frame, width=30, show="*")  # hidden by default
+                entry.insert(0, str(value))
+                entry.pack(side=tk.LEFT)
+
+                def toggle_password(e=entry, b=None):
+                    if e.cget("show") == "":
+                        e.config(show="*")
+                        b.config(text="Show")
+                    else:
+                        e.config(show="")
+                        b.config(text="Hide")
+
+                toggle_btn = tk.Button(frame, text="Show")
+                toggle_btn.config(command=lambda e=entry, b=toggle_btn: toggle_password(e, b))
+                toggle_btn.pack(side=tk.LEFT, padx=5)
             else:
                 entry = tk.Entry(parent, width=40)
                 entry.insert(0, str(value))
