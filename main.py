@@ -11,7 +11,10 @@ import datetime
 ##Google Sheets stuff
 
 ##handle arguments
-parser = argparse.ArgumentParser()
+parser = argparse.ArgumentParser(
+        epilog="""***!!!REMEMBER!!!*** All actions are performed on Yesterdays data. This includes all logging from XMLs and logging to Unitas!
+        All arguments will only run once. To run in 'Forever Mode', where the script is fully automatic, just drop all arguments."""
+        )
 
 parser.add_argument(
     '--LogToSheet', '-LS',
@@ -38,6 +41,13 @@ parser.add_argument(
     action='store_true',
     help="Run once, for single log, not the forever run"
 )
+parser.add_argument(
+    '--XMLThenCheckBox', '-XTC',
+    action='store_true',
+    help='Log from XMLs, then watch checkbox in spreadsheet, and log to Unitas when it is checked'
+)
+
+
 args = parser.parse_args()
 
 # Load secrets
@@ -68,8 +78,10 @@ checkbox_cell = "Send_To_Bot!BD3:BD3"
 
 ##End of Google Sheets stuff
 
-if args.SingleRun:
+if args.SingleRun or args.LogToSheet or args.DoXMLStuff or args.XMLThenCheckBox or args.LogToUnitas:
     print(f"Running in Single Run mode.")
+
+    # read XMLs, delete
     if not args.LogToUnitas:
         do_xml_setup(secrets)
         valuesFromXML = run_xml_stuff()
@@ -78,11 +90,24 @@ if args.SingleRun:
         if not args.NoDelete:
             deleteOldFiles()
 
-
+    # we want to log to Unitas *at some point*
     if not args.LogToSheet:
         do_unitas_setup(secrets)
+
+        if args.XMLThenCheckBox:
+            while True:
+                do_unitas_stuff = read_from_sheet(SPREADSHEET_ID, checkbox_cell, service)
+                string_value = do_unitas_stuff[0][0]
+                bool_value = string_value.upper() == 'TRUE'
+                do_unitas_stuff = bool_value
+                if do_unitas_stuff:
+                    break
+
+                time.sleep(10)
+
         valuesToSend = read_from_sheet(SPREADSHEET_ID, SHEET_TO_UNITAS_RANGE_NAME, service)
         run_unitas_stuff(valuesToSend)
+
 
 else:
     print(f"Running in Forever Run mode.")
@@ -119,6 +144,9 @@ else:
             elif xml_to_sheet_ran and not sheet_to_unitas_ran:
                 if not args.LogToSheet:
                     do_unitas_stuff = read_from_sheet(SPREADSHEET_ID, checkbox_cell, service)
+                    string_value = do_unitas_stuff[0][0]
+                    bool_value = string_value.upper() == 'TRUE'
+                    do_unitas_stuff = bool_value
                     if do_unitas_stuff:
                         valuesToSend = read_from_sheet(SPREADSHEET_ID, SHEET_TO_UNITAS_RANGE_NAME, service)
                         run_unitas_stuff(valuesToSend)

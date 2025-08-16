@@ -1,9 +1,14 @@
+import pathlib
+import webbrowser
 import tkinter as tk
 from tkinter import filedialog, messagebox, Toplevel
 import json
 import os
+import subprocess
 
-CONFIG_FILE = "../secrets.json"
+CONFIG_FILE = pathlib.Path(__file__).parent.parent / "secrets.json"
+GOOGLE_SHEET_COPY = "https://docs.google.com/spreadsheets/d/1Hkw_o8hdZHK3YLs8V5oBWMliJEVMIa8vcZzKqIVdKF0/copy"
+SERVICE_NAME = "datalogger.service"
 
 DEFAULT_CONFIG = {
     "spreadsheet_id": "",
@@ -22,7 +27,6 @@ DEFAULT_CONFIG = {
     "sheet_to_unitas_range_name": ""
 }
 
-# Map internal keys to user-friendly labels
 FIELD_LABELS = {
     "spreadsheet_id": "Google Spreadsheet ID",
     "how_long_to_save_old_files": "Days to Keep Old Files (0 to disable, 2 recommended)",
@@ -43,43 +47,57 @@ TIME_FIELDS = [
 
 VISIBLE_FIELDS = list(FIELD_LABELS.keys())
 
+
 class ConfigEditor:
     def __init__(self, root):
         self.root = root
         self.root.title("Configuration Editor")
         self.entries = {}
         self.config = DEFAULT_CONFIG.copy()
-
         self.load_config()
-        self.create_form()
 
-        # Buttons
-        btn_frame = tk.Frame(root)
+        # Main frame using grid
+        main_frame = tk.Frame(root)
+        main_frame.grid(row=0, column=0, padx=10, pady=10)
+
+        # Hamburger menu button at top-right
+        menu_button = tk.Menubutton(main_frame, text="☰", relief=tk.RAISED)
+        menu_button.grid(row=0, column=0, sticky="nw", padx=5, pady=5)
+        menu = tk.Menu(menu_button, tearoff=0)
+        menu.add_command(label="Copy Google Sheet", command=self.option1)
+        menu.add_command(label="Start Automatic Data Logger Service", command=self.option2)
+        menu.add_command(label="Option 3", command=self.option3)
+        menu_button.config(menu=menu)
+
+        # Create the form entries below the menu
+        self.create_form(main_frame)
+
+        # Buttons frame below form
+        btn_frame = tk.Frame(main_frame)
         btn_frame.grid(row=len(VISIBLE_FIELDS), column=0, columnspan=2, pady=10)
         tk.Button(btn_frame, text="Save", command=self.save_config).pack(side=tk.LEFT, padx=5)
         tk.Button(btn_frame, text="Load", command=self.load_config).pack(side=tk.LEFT, padx=5)
         tk.Button(btn_frame, text="Quit", command=root.quit).pack(side=tk.LEFT, padx=5)
 
-    def create_form(self):
+    def create_form(self, parent):
         for i, key in enumerate(VISIBLE_FIELDS):
             value = self.config.get(key, "")
-            tk.Label(self.root, text=FIELD_LABELS.get(key, key)).grid(row=i, column=0, sticky="e", padx=5, pady=3)
+            tk.Label(parent, text=FIELD_LABELS.get(key, key)).grid(row=i, column=0, sticky="e", padx=5, pady=3)
 
             if key in TIME_FIELDS:
-                frame = tk.Frame(self.root)
+                frame = tk.Frame(parent)
                 frame.grid(row=i, column=1, sticky="w")
                 entry = tk.Entry(frame, width=15)
                 entry.insert(0, str(value))
                 entry.pack(side=tk.LEFT)
                 tk.Button(frame, text="⏱", command=lambda e=entry: self.pick_time(e)).pack(side=tk.LEFT, padx=5)
-
             else:
-                entry = tk.Entry(self.root, width=40)
+                entry = tk.Entry(parent, width=40)
                 entry.insert(0, str(value))
                 entry.grid(row=i, column=1, padx=5, pady=3)
 
             self.entries[key] = entry
-
+    # --- Helper methods ---
     def browse_folder(self, entry_widget):
         folder = filedialog.askdirectory()
         if folder:
@@ -144,6 +162,24 @@ class ConfigEditor:
             messagebox.showinfo("Success", "Configuration saved successfully!")
         except Exception as e:
             messagebox.showerror("Error", f"Failed to save config: {e}")
+
+    # --- Hamburger menu options ---
+    def option1(self):
+        webbrowser.get("firefox").open(GOOGLE_SHEET_COPY)
+        #messagebox.showinfo("Menu", "Option 1 clicked!")
+
+    def option2(self):
+        #messagebox.showinfo("Menu", "Option 2 clicked!")
+
+        try:
+        
+            subprocess.run(["systemctl", "start", SERVICE_NAME], check=True)
+            print(f"Service '{SERVICE_NAME}' started successfully.")
+        except subprocess.CalledProcessError as e:
+            print(f"Failed to start service: {e}")
+
+    def option3(self):
+        messagebox.showinfo("Menu", "Option 3 clicked!")
 
 
 if __name__ == "__main__":
