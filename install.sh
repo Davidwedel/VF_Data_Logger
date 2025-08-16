@@ -21,9 +21,9 @@ echo "[*] Installing vsftpd..."
 
 # Detect package manager
 if command -v dnf &> /dev/null; then
-    sudo dnf install -y vsftpd python3 python3-pip
+    sudo dnf install -y vsftpd python3 python3-pip python-tkinter
 elif command -v apt &> /dev/null; then
-    sudo apt update && sudo apt install -y vsftpd python3 python3-pip
+    sudo apt update && sudo apt install -y vsftpd python3 python3-pip python3-tkinter
 else
     echo "Unsupported package manager. Install vsftpd manually."
     exit 1
