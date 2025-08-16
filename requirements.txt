@@ -58,6 +58,7 @@ requests-oauthlib==2.0.0
 rich==14.1.0
 rsa==4.9.1
 sbvirtualdisplay==1.4.0
+schedule==1.2.2
 selenium==4.34.2
 seleniumbase==4.40.6
 setuptools==80.9.0
