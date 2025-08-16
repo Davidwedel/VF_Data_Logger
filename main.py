@@ -67,6 +67,8 @@ XML_TO_SHEET_RANGE_NAME = secrets["xml_to_sheet_range_name"]
 
 SHEET_TO_UNITAS_RANGE_NAME = secrets["sheet_to_unitas_range_name"]
 
+RETRIEVE_FROM_XML_TIME = secrets["retrieve_from_xml_time"]
+
 # Authenticate with the service account
 creds = service_account.Credentials.from_service_account_file(
     SERVICE_ACCOUNT_FILE, scopes=SCOPES)
@@ -153,7 +155,7 @@ else:
 
     # ─── Scheduling ───
     schedule.every().day.at("00:00:00").do(reset_flags)      # reset daily
-    schedule.every().day.at("00:15:00").do(xml_to_sheet_job) # XML → Sheets
+    schedule.every().day.at(RETRIEVE_FROM_XML_TIME).do(xml_to_sheet_job) # XML → Sheets
     schedule.every(10).seconds.do(check_and_run_unitas)      # poll spreadsheet
 
     try:
