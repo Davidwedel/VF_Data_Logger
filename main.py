@@ -78,11 +78,11 @@ checkbox_cell = "Send_To_Bot!BD3:BD3"
 
 ##End of Google Sheets stuff
 
-if args.LogToSheet or args.DoXMLStuff or args.XMLThenCheckBox or args.LogToUnitas:
+if args.SingleRun or args.LogToSheet or args.DoXMLStuff or args.XMLThenCheckBox or args.LogToUnitas:
     print(f"Running in Single Run mode.")
 
     # read XMLs, delete
-    if args.LogToSheet or args.DoXMLStuff or args.DoEverythingNow or args.XMLThenCheckBox:
+    if not args.LogToUnitas:
         do_xml_setup(secrets)
         valuesFromXML = run_xml_stuff()
         write_to_sheet(valuesFromXML, SPREADSHEET_ID, XML_TO_SHEET_RANGE_NAME, service)
@@ -94,15 +94,20 @@ if args.LogToSheet or args.DoXMLStuff or args.XMLThenCheckBox or args.LogToUnita
     if not args.LogToSheet:
         do_unitas_setup(secrets)
 
-        if args.XMLThenCheckBox
+        if args.XMLThenCheckBox:
             while True:
-            do_unitas_stuff = read_from_sheet(SPREADSHEET_ID, checkbox_cell, service)
-            if do_unitas_stuff:
-                break
-            time.sleep(10)
+                do_unitas_stuff = read_from_sheet(SPREADSHEET_ID, checkbox_cell, service)
+                string_value = do_unitas_stuff[0][0]
+                bool_value = string_value.upper() == 'TRUE'
+                do_unitas_stuff = bool_value
+                if do_unitas_stuff:
+                    break
+
+                time.sleep(10)
 
         valuesToSend = read_from_sheet(SPREADSHEET_ID, SHEET_TO_UNITAS_RANGE_NAME, service)
         run_unitas_stuff(valuesToSend)
+
 
 else:
     print(f"Running in Forever Run mode.")
@@ -139,6 +144,9 @@ else:
             elif xml_to_sheet_ran and not sheet_to_unitas_ran:
                 if not args.LogToSheet:
                     do_unitas_stuff = read_from_sheet(SPREADSHEET_ID, checkbox_cell, service)
+                    string_value = do_unitas_stuff[0][0]
+                    bool_value = string_value.upper() == 'TRUE'
+                    do_unitas_stuff = bool_value
                     if do_unitas_stuff:
                         valuesToSend = read_from_sheet(SPREADSHEET_ID, SHEET_TO_UNITAS_RANGE_NAME, service)
                         run_unitas_stuff(valuesToSend)
