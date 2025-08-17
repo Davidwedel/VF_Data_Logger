@@ -4,6 +4,9 @@ Implement Telegram bot for warnings
 send cooler temps to unitas?
 rewrite install.sh so we don't have to be in home dir
 Time zone stuff?? we need to set the computer time somehow
+make sure all settings are present
+warn if settings haven't been saved when user closes UI
+warn in setting isnt set when user closes UI
 
 If bored:
 revamp cooler temp stuff to just grab the latest xml at the correct time instead of parsing each file to find the right temp/time
