@@ -95,6 +95,9 @@ else
 sudo setsebool -P allow_ftpd_anon_write=1
 sudo semanage fcontext -a -t public_content_rw_t "($UPLOAD_DIR)(/.*)?"
 sudo restorecon -Rv $UPLOAD_DIR
+
+# Systemd permissions
+sudo semodule -i my-python.pp
 fi
 
 
