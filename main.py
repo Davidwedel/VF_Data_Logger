@@ -1,3 +1,5 @@
+import pathlib
+import schedule
 import time
 import argparse
 from xml_processing import do_xml_setup, run_xml_stuff, deleteOldFiles
@@ -51,11 +53,14 @@ parser.add_argument(
 args = parser.parse_args()
 
 # Load secrets
-with open("secrets.json", "r") as f:
+
+CONFIG_FILE = pathlib.Path(__file__).parent / "secrets.json"
+
+with open(CONFIG_FILE, "r") as f:
     secrets = json.load(f)
     
 # Path to your downloaded service account key
-SERVICE_ACCOUNT_FILE = 'credentials.json'
+SERVICE_ACCOUNT_FILE = pathlib.Path(__file__).parent / 'credentials.json'
 
 # Scopes required for Sheets API
 SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
@@ -65,6 +70,8 @@ SPREADSHEET_ID = secrets["spreadsheet_id"]
 XML_TO_SHEET_RANGE_NAME = secrets["xml_to_sheet_range_name"]
 
 SHEET_TO_UNITAS_RANGE_NAME = secrets["sheet_to_unitas_range_name"]
+
+RETRIEVE_FROM_XML_TIME = secrets["retrieve_from_xml_time"]
 
 # Authenticate with the service account
 creds = service_account.Credentials.from_service_account_file(
@@ -119,42 +126,48 @@ else:
     xml_to_sheet_ran = False
     sheet_to_unitas_ran = False
 
+    def reset_flags():
+        """Reset daily run flags at midnight."""
+        global xml_to_sheet_ran, sheet_to_unitas_ran
+        xml_to_sheet_ran = False
+        sheet_to_unitas_ran = False
+        print("[Reset] Flags reset at midnight")
+
+    def xml_to_sheet_job():
+        """Run XML → Sheets logging once per day."""
+        global xml_to_sheet_ran
+        if not xml_to_sheet_ran:
+            if not args.LogToUnitas:
+                valuesFromXML = run_xml_stuff()
+                write_to_sheet(valuesFromXML, SPREADSHEET_ID, XML_TO_SHEET_RANGE_NAME, service)
+                if not args.NoDelete:
+                    deleteOldFiles()
+            xml_to_sheet_ran = True
+            print("[XML] Logged XML → Sheets")
+
+    def check_and_run_unitas():
+        """Poll spreadsheet and run Unitas if checkbox is TRUE."""
+        global xml_to_sheet_ran, sheet_to_unitas_ran
+        if xml_to_sheet_ran and not sheet_to_unitas_ran and not args.LogToSheet:
+            do_unitas_stuff = read_from_sheet(SPREADSHEET_ID, checkbox_cell, service)
+            bool_value = do_unitas_stuff[0][0].upper() == 'TRUE'
+            if bool_value:
+                valuesToSend = read_from_sheet(SPREADSHEET_ID, SHEET_TO_UNITAS_RANGE_NAME, service)
+                run_unitas_stuff(valuesToSend)
+                sheet_to_unitas_ran = True
+                print("[Unitas] Logged Sheet → Unitas")
+
+    # ─── Scheduling ───
+    schedule.every().day.at("00:00:00").do(reset_flags)      # reset daily
+    schedule.every().day.at(RETRIEVE_FROM_XML_TIME).do(xml_to_sheet_job) # XML → Sheets
+    schedule.every(10).seconds.do(check_and_run_unitas)      # poll spreadsheet
+
     try:
+
+        ##this is the forever loop
         while True:
-            now = datetime.datetime.now()
+            schedule.run_pending()
+            time.sleep(1)
 
-            if now.hour == 0 and now.minute == 15:
-                if not xml_to_sheet_ran:
-                    
-                    if not args.LogToUnitas:
-                        # log from XML file to sheets
-                        valuesFromXML = run_xml_stuff()
-                        write_to_sheet(valuesFromXML, SPREADSHEET_ID, XML_TO_SHEET_RANGE_NAME, service)
-
-                        #delete all old files, so directory doesn't fill up.
-                        if not args.NoDelete:
-                            deleteOldFiles()
-
-                    xml_to_sheet_ran = True
-
-            elif now.hour == 0 and now.minute == 00:
-                sheet_to_unitas_ran = False  # Reset at midnight 
-                xml_to_sheet_ran = False
-
-            elif xml_to_sheet_ran and not sheet_to_unitas_ran:
-                if not args.LogToSheet:
-                    do_unitas_stuff = read_from_sheet(SPREADSHEET_ID, checkbox_cell, service)
-                    string_value = do_unitas_stuff[0][0]
-                    bool_value = string_value.upper() == 'TRUE'
-                    do_unitas_stuff = bool_value
-                    if do_unitas_stuff:
-                        valuesToSend = read_from_sheet(SPREADSHEET_ID, SHEET_TO_UNITAS_RANGE_NAME, service)
-                        run_unitas_stuff(valuesToSend)
-
-                        sheet_to_unitas_ran = True
-
-                
-
-            time.sleep(10)
     except KeyboardInterrupt:
         print("Stopped by user")
