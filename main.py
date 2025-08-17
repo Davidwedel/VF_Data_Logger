@@ -1,3 +1,4 @@
+import pathlib
 import schedule
 import time
 import argparse
@@ -52,11 +53,14 @@ parser.add_argument(
 args = parser.parse_args()
 
 # Load secrets
-with open("secrets.json", "r") as f:
+
+CONFIG_FILE = pathlib.Path(__file__).parent / "secrets.json"
+
+with open(CONFIG_FILE, "r") as f:
     secrets = json.load(f)
     
 # Path to your downloaded service account key
-SERVICE_ACCOUNT_FILE = 'credentials.json'
+SERVICE_ACCOUNT_FILE = pathlib.Path(__file__).parent / 'credentials.json'
 
 # Scopes required for Sheets API
 SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
