@@ -1,3 +1,5 @@
+import logging
+import sys
 import pathlib
 import schedule
 import time
@@ -10,7 +12,15 @@ import json
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
 import datetime
-##Google Sheets stuff
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(message)s",
+    handlers=[logging.StreamHandler(sys.stdout)]
+)
+
+logger = logging.getLogger(__name__)
+logger.info("This will show up in systemd logs")
 
 ##handle arguments
 parser = argparse.ArgumentParser(
