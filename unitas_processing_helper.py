@@ -80,35 +80,25 @@ def fill_input_by_id(driver, field_id, value, timeout=TIMEOUT):
         
     input_element.send_keys(value) # Insert the new value
 
-def fill_multiselect_box(driver, label_text, items):
+def fill_multiselect_box(driver, label, items):
 
     # return if nothing
     if items == "":
         return
 
-    print(label_text)
+    print(label)
 
-    wait = WebDriverWait(driver, TIMEOUT)
-
-    # 1. Locate the multiselect by its label
-    label_xpath = f"//label[normalize-space()='{label_text}']/ancestor::div[contains(@class, 'relative')]//div[@data-cy='multiselect']"
-    dropdown = wait.until(EC.element_to_be_clickable((By.XPATH, label_xpath)))
+    dropdown = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable((By.CSS_SELECTOR, f'[aria-labelledby="{label}"] button'))
+)
     dropdown.click()
     time.sleep(2)
     dropdown.click()
-
     return
 
     for item in items:
-        # 2. Reopen the dropdown if it closes after selection
-        try:
-            option_xpath = f"//li[@data-cy='list-item']//span[normalize-space(text())='{item}']"
-            option = wait.until(EC.element_to_be_clickable((By.XPATH, option_xpath)))
-            option.click()
-        except:
-            print("exc")
-            # Dropdown might have closed, reopen and try again
-            dropdown = wait.until(EC.element_to_be_clickable((By.XPATH, label_xpath)))
-            dropdown.click()
-            option = waituntil(EC.element_to_be_clickable((By.XPATH, option_xpath)))
-            option.click()
+        option_xpath = f"//li[@data-cy='list-item']//span[normalize-space(text())='{item}']"
+        option = wait.until(EC.element_to_be_clickable((By.XPATH, option_xpath)))
+        option.click()
+
+    dropdown.click()
