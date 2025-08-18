@@ -41,7 +41,7 @@ FIELD_LABELS = {
     "Unitas_Password": "Unitas Password",
     "Farm_ID": "Unitas Farm ID",
     "House_ID": "Unitas House Id",
-    "Cooler_Log_to_Unitas": "Cooler Log to Unitas",
+    "Cooler_Log_To_Unitas": "Cooler Log to Unitas",
     "Cooler_Log_Initials": "Cooler Log Initials"
 }
 
@@ -111,19 +111,19 @@ class ConfigEditor:
                 entry.insert(0, str(value))
                 entry.pack(side=tk.LEFT)
                 tk.Button(frame, text="⏱", command=lambda e=entry: self.pick_time(e)).pack(side=tk.LEFT, padx=5)
+                self.entries[key] = {"type": "entry", "widget": entry}
 
             elif key in CHECKBOX_FIELDS:
                 var = tk.BooleanVar()
                 var.set(bool(value))
                 checkbox = tk.Checkbutton(parent, variable=var)
-                checkbox.var = var  # optionally store the var for later access
-                checkbox.grid(row=i, column=1, sticky="w")                
+                checkbox.grid(row=i, column=1, sticky="w")
+                self.entries[key] = {"type": "checkbox", "variable": var}
 
             elif key in PASSWORD_FIELDS:
                 frame = tk.Frame(parent)
                 frame.grid(row=i, column=1, sticky="w", padx=5, pady=3)
-
-                entry = tk.Entry(frame, width=30, show="*")  # hidden by default
+                entry = tk.Entry(frame, width=30, show="*")
                 entry.insert(0, str(value))
                 entry.pack(side=tk.LEFT)
 
@@ -138,12 +138,13 @@ class ConfigEditor:
                 toggle_btn = tk.Button(frame, text="Show")
                 toggle_btn.config(command=lambda e=entry, b=toggle_btn: toggle_password(e, b))
                 toggle_btn.pack(side=tk.LEFT, padx=5)
+                self.entries[key] = {"type": "entry", "widget": entry}
+
             else:
                 entry = tk.Entry(parent, width=40)
                 entry.insert(0, str(value))
                 entry.grid(row=i, column=1, padx=5, pady=3)
-
-            self.entries[key] = entry
+                self.entries[key] = {"type": "entry", "widget": entry}
     # --- Helper methods ---
     def browse_folder(self, entry_widget):
         folder = filedialog.askdirectory()
@@ -191,18 +192,25 @@ class ConfigEditor:
         else:
             self.config = DEFAULT_CONFIG.copy()
 
-        for key, entry in self.entries.items():
-            entry.delete(0, tk.END)
-            entry.insert(0, str(self.config.get(key, "")))
+        for key, field in self.entries.items():
+            value = self.config.get(key, "")
+            if field["type"] == "entry":
+                field["widget"].delete(0, tk.END)
+                field["widget"].insert(0, str(value))
+            elif field["type"] == "checkbox":
+                field["variable"].set(bool(value))
 
     def save_config(self):
         try:
-            for key, entry in self.entries.items():
-                value = entry.get()
+
+            for key, field in self.entries.items():
+                if field["type"] == "entry":
+                    value = field["widget"].get()
+                elif field["type"] == "checkbox":
+                    value = field["variable"].get()
                 if key == "how_long_to_save_old_files":
                     value = int(value)
                 self.config[key] = value
-
             with open(CONFIG_FILE, "w") as f:
                 json.dump(self.config, f, indent=2)
 
