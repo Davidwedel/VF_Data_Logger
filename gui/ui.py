@@ -25,7 +25,9 @@ DEFAULT_CONFIG = {
     "Farm_ID": "",
     "House_ID": "",
     "Timeout": "",
-    "sheet_to_unitas_range_name": ""
+    "sheet_to_unitas_range_name": "",
+    "Cooler_Log_to_Unitas": False,
+    "Cooler_Log_Initials": ""
 }
 
 FIELD_LABELS = {
@@ -38,7 +40,9 @@ FIELD_LABELS = {
     "Unitas_Username": "Unitas Username",
     "Unitas_Password": "Unitas Password",
     "Farm_ID": "Unitas Farm ID",
-    "House_ID": "Unitas House Id"
+    "House_ID": "Unitas House Id",
+    "Cooler_Log_to_Unitas": "Cooler Log to Unitas",
+    "Cooler_Log_Initials": "Cooler Log Initials"
 }
 
 PASSWORD_FIELDS = [
@@ -46,7 +50,8 @@ PASSWORD_FIELDS = [
     "Unitas_Username",
     "Unitas_Password",
     "Farm_ID",
-    "House_ID"
+    "House_ID",
+    "Cooler_Log_Initials"
 ]
 
 TIME_FIELDS = [
@@ -54,6 +59,10 @@ TIME_FIELDS = [
     "get_cooler_temp_PM",
     "retrieve_from_xml_time",
     "cooler_temp_time_tolerance"
+]
+
+CHECKBOX_FIELDS = [
+    "Cooler_Log_To_Unitas"
 ]
 
 VISIBLE_FIELDS = list(FIELD_LABELS.keys())
@@ -102,7 +111,14 @@ class ConfigEditor:
                 entry.insert(0, str(value))
                 entry.pack(side=tk.LEFT)
                 tk.Button(frame, text="⏱", command=lambda e=entry: self.pick_time(e)).pack(side=tk.LEFT, padx=5)
-                
+
+            elif key in CHECKBOX_FIELDS:
+                var = tk.BooleanVar()
+                var.set(bool(value))
+                checkbox = tk.Checkbutton(parent, variable=var)
+                checkbox.var = var  # optionally store the var for later access
+                checkbox.grid(row=i, column=1, sticky="w")                
+
             elif key in PASSWORD_FIELDS:
                 frame = tk.Frame(parent)
                 frame.grid(row=i, column=1, sticky="w", padx=5, pady=3)
