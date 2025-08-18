@@ -58,7 +58,11 @@ parser.add_argument(
     action='store_true',
     help='Log from XMLs, then watch checkbox in spreadsheet, and log to Unitas when it is checked'
 )
-
+parser.add_argument(
+    '--CoolerLogToUnitas', '-CTU',
+    action='store_true',
+    help='Log yesterdays Cooler Temps to Unitas'
+)
 
 args = parser.parse_args()
 
@@ -82,6 +86,8 @@ XML_TO_SHEET_RANGE_NAME = secrets["xml_to_sheet_range_name"]
 SHEET_TO_UNITAS_RANGE_NAME = secrets["sheet_to_unitas_range_name"]
 
 RETRIEVE_FROM_XML_TIME = secrets["retrieve_from_xml_time"]
+
+LOG_COOLER_TO_UNITAS = secrets["Cooler_Log_To_Unitas"]
 
 # Authenticate with the service account
 creds = service_account.Credentials.from_service_account_file(
