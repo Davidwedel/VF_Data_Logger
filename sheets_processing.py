@@ -23,7 +23,7 @@ def write_to_sheet(values, SPREADSHEET_ID, RANGE_NAME, service):
 
 def read_from_sheet(SPREADSHEET_ID, RANGE_NAME, service):
     attempt = 0
-    while attempt < retries:
+    while attempt < RETRIES:
         try:
 
             # Read
@@ -44,10 +44,10 @@ def read_from_sheet(SPREADSHEET_ID, RANGE_NAME, service):
         except HttpError as error:
             # Handle Google Sheets API errors
             if error.resp.status == 500:
-                logging.error(f"Google Sheets API server error (500) on attempt {attempt + 1}. Retrying in {backoff} seconds...")
-                time.sleep(backoff)  # Backoff before retrying
+                logging.error(f"Google Sheets API server error (500) on attempt {attempt + 1}. Retrying in {BACKOFF} seconds...")
+                time.sleep(BACKOFF)  # Backoff before retrying
                 attempt += 1
-                backoff *= 2  # Exponential backoff for retries
+                BACKOFF *= 2  # Exponential backoff for retries
             else:
                 logging.error(f"An error occurred: {error}")
                 break
