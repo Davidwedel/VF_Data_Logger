@@ -9,6 +9,7 @@ warn in setting isnt set when user closes UI
 do we need google imported stuff in main .py also time 
 TIMEOUT
 cases in xml stuff
+grab credentials.json from downloads
 
 If bored:
 revamp cooler temp stuff to just grab the latest xml at the correct time instead of parsing each file to find the right temp/time
