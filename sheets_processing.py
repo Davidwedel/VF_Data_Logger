@@ -1,6 +1,6 @@
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
-from unitas_processing_helper import count_columns_in_range
+from unitas_helper import count_columns_in_range
 
 def write_to_sheet(values, SPREADSHEET_ID, RANGE_NAME, service):
     body = {
