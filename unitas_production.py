@@ -8,23 +8,20 @@ from webdriver_manager.firefox import GeckoDriverManager
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from unitas_login import login
 
 HEADLESS = None
 FARM_ID = None
 HOUSE_ID = None
 TIMEOUT = None
-USERNAME = None
-PASSWORD = None
 RANGE_NAME = None
 SPREADSHEET_ID = None
-LOGIN_URL = None
 PRODUCTION_URL_TMPL = None
 
 def do_unitas_setup(secrets):
 # ---------- config ----------
 
-    global HEADLESS, FARM_ID, HOUSE_ID, TIMEOUT, USERNAME, PASSWORD, RANGE_NAME, SPREADSHEET_ID, LOGIN_URL, PRODUCTION_URL_TMPL
-    LOGIN_URL = "https://vitalfarms.poultrycloud.com/login"  # confirm this
+    global HEADLESS, FARM_ID, HOUSE_ID, TIMEOUT, RANGE_NAME, SPREADSHEET_ID, PRODUCTION_URL_TMPL
     PRODUCTION_URL_TMPL = "https://vitalfarms.poultrycloud.com/farm/production?farmId={farm_id}&houseId={house_id}"
 
     HEADLESS = False  # set True for headless mode
@@ -33,15 +30,11 @@ def do_unitas_setup(secrets):
     FARM_ID = secrets["Farm_ID"]
     HOUSE_ID = secrets["House_ID"]
     TIMEOUT = secrets["Timeout"]
-    USERNAME = secrets["Unitas_Username"]
-    PASSWORD = secrets["Unitas_Password"]
     RANGE_NAME = secrets["sheet_to_unitas_range_name"]
     SPREADSHEET_ID = secrets["spreadsheet_id"]
 
     helper.set_timeout(TIMEOUT)
 
-    if not USERNAME or not PASSWORD:
-        raise SystemExit("Set Unitas_Username and Unitas_Password in secrets.json!")
 
 def make_driver(headless: bool = False):
     options = webdriver.FirefoxOptions()
@@ -52,18 +45,6 @@ def make_driver(headless: bool = False):
         options=options
     )
 
-
-def login(driver):
-    wait = WebDriverWait(driver, 10)
-    driver.get(LOGIN_URL)
-    username_box = wait.until(EC.visibility_of_element_located((By.ID, "username")))
-    password_box = wait.until(EC.visibility_of_element_located((By.ID, "password")))
-    username_box.send_keys(USERNAME)
-    password_box.send_keys(PASSWORD)
-    login_btn = helper.click_when_clickable(driver, By.CSS_SELECTOR, "button[type='submit']", TIMEOUT)
-    login_btn.click()
-    WebDriverWait(driver, TIMEOUT).until_not(EC.url_contains("/login"))
-    print("Logged in")
 
 def open_production_page(driver, farm_id: int, house_id: int):
     url = PRODUCTION_URL_TMPL.format(farm_id=farm_id, house_id=house_id)
