@@ -5,8 +5,9 @@ import schedule
 import time
 import argparse
 from xml_processing import do_xml_setup, run_xml_stuff, deleteOldFiles
-from sheets_processing import read_from_sheet, write_to_sheet
+from sheets_processing import read_from_sheet, write_to_sheet, sheets_setup
 from unitas_production import do_unitas_setup, run_unitas_stuff
+import unitas_coolerlog as coolerlog
 from unitas_login import setup_unitas_login
 import os
 import json
@@ -102,8 +103,14 @@ checkbox_cell = "Send_To_Bot!BD3:BD3"
 
 ##End of Google Sheets stuff
 
+sheets_setup(secrets, service)
 setup_unitas_login(secrets)
 
+if args.CoolerLogToUnitas:
+    coolerlog.do_coolerlog_setup(secrets)
+    coolerlog.run_coolerlog_to_unitas()
+    print("donewththat")
+    exit()
 
 if args.SingleRun or args.LogToSheet or args.DoXMLStuff or args.XMLThenCheckBox or args.LogToUnitas:
     print(f"Running in Single Run mode.")

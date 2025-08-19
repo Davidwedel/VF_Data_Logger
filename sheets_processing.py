@@ -2,6 +2,15 @@ from google.oauth2 import service_account
 from googleapiclient.discovery import build
 from unitas_helper import count_columns_in_range
 
+SERVICE = None
+SPREADSHEET_ID = None
+
+def sheets_setup(secrets, service):
+    global SERVICE, SPREADSHEET_ID
+
+    SERVICE = service
+    SPREADSHEET_ID = secrets["spreadsheet_id"]
+
 def write_to_sheet(values, SPREADSHEET_ID, RANGE_NAME, service):
     body = {
         'values': values
@@ -19,7 +28,7 @@ def write_to_sheet(values, SPREADSHEET_ID, RANGE_NAME, service):
 
     print(f"{result.get('updates').get('updatedRows')} rows appended.")
 
-def read_from_sheet(SPREADSHEET_ID, RANGE_NAME, service):
+def read_from_sheet(SPREADSHEET_ID, RANGE_NAME, service = SERVICE):
     # Read
     resp = service.spreadsheets().values().get(
         spreadsheetId=SPREADSHEET_ID,
