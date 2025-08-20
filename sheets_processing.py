@@ -4,6 +4,8 @@ from unitas_helper import count_columns_in_range
 
 SERVICE = None
 SPREADSHEET_ID = None
+BACKOFF = 5
+RETRIES = 3
 
 def sheets_setup(secrets, service):
     global SERVICE, SPREADSHEET_ID
@@ -11,8 +13,7 @@ def sheets_setup(secrets, service):
     SERVICE = service
     SPREADSHEET_ID = secrets["spreadsheet_id"]
 
-BACKOFF = 5
-RETRIES = 3
+
 def write_to_sheet(values, SPREADSHEET_ID, RANGE_NAME, service):
     body = {
         'values': values
@@ -30,12 +31,12 @@ def write_to_sheet(values, SPREADSHEET_ID, RANGE_NAME, service):
 
     print(f"{result.get('updates').get('updatedRows')} rows appended.")
 
-def read_from_sheet(SPREADSHEET_ID, RANGE_NAME, service):
+def read_from_sheet(RANGE_NAME):
     attempt = 0
     while attempt < RETRIES:
         try:
             # Read
-            resp = service.spreadsheets().values().get(
+            resp = SERVICE.spreadsheets().values().get(
                 spreadsheetId=SPREADSHEET_ID,
                 range=RANGE_NAME
             ).execute()

@@ -13,7 +13,7 @@ import os
 import json
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
-import datetime
+from datetime import datetime, timedelta
 
 logging.basicConfig(
     level=logging.INFO,
@@ -105,14 +105,12 @@ checkbox_cell = "Send_To_Bot!BD3:BD3"
 
 sheets_setup(secrets, service)
 setup_unitas_login(secrets)
+coolerlog.do_coolerlog_setup(secrets)
 
 if args.CoolerLogToUnitas:
-    coolerlog.do_coolerlog_setup(secrets)
     coolerlog.run_coolerlog_to_unitas()
-    print("donewththat")
-    exit()
 
-if args.SingleRun or args.LogToSheet or args.DoXMLStuff or args.XMLThenCheckBox or args.LogToUnitas:
+elif args.SingleRun or args.LogToSheet or args.DoXMLStuff or args.XMLThenCheckBox or args.LogToUnitas:
     print(f"Running in Single Run mode.")
 
     # read XMLs, delete
@@ -153,6 +151,11 @@ else:
     xml_to_sheet_ran = False
     sheet_to_unitas_ran = False
 
+    def coolerlog_unitas():
+        if(LOG_COOLER_TO_UNITAS):
+            coolerlog.run_coolerlog_to_unitas()
+
+
     def reset_flags():
         """Reset daily run flags at midnight."""
         global xml_to_sheet_ran, sheet_to_unitas_ran
@@ -188,6 +191,19 @@ else:
     schedule.every().day.at("00:00:00").do(reset_flags)      # reset daily
     schedule.every().day.at(RETRIEVE_FROM_XML_TIME).do(xml_to_sheet_job) # XML → Sheets
     schedule.every(10).seconds.do(check_and_run_unitas)      # poll spreadsheet
+
+    # define a helper to calculate the coolerlog->unitas run time
+    def schedule_offset(base_time="00:15:00", offset_minutes=15):
+        h, m, s = map(int, base_time.split(":"))
+        target = (datetime.combine(datetime.today(), datetime.min.time())
+                  + timedelta(hours=h, minutes=m, seconds=s)
+                  + timedelta(minutes=offset_minutes))
+        return target.strftime("%H:%M:%S")
+
+    run_time = schedule_offset("00:15:00", 15)  # -> "00:30:00"
+    schedule.every().day.at(run_time).do(coolerlog_unitas)
+
+    print(f"Job scheduled at {run_time}")
 
     try:
 
