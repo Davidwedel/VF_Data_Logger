@@ -101,7 +101,6 @@ def fill_production_form(driver, data: dict):
     #mortality_reason = data[6]
     helper.fill_multiselect_box(driver, "V50-H1", data[0][6])
 
-    return
     #mortality_comments = data[7]
     helper.fill_input_by_id(driver, "V81-H1", data[0][7])
 
