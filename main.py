@@ -9,6 +9,7 @@ from sheets_processing import read_from_sheet, write_to_sheet, sheets_setup
 from unitas_production import do_unitas_setup, run_unitas_stuff
 import unitas_coolerlog as coolerlog
 from unitas_login import setup_unitas_login
+from unitas_helper import set_timeout
 import os
 import json
 from google.oauth2 import service_account
@@ -101,11 +102,17 @@ service = build('sheets', 'v4', credentials=creds)
 #checkbox log cell
 checkbox_cell = "Send_To_Bot!AU3:AU3"
 
+#cooler log to unitas cell range
+COOLER_LOG_TO_UNITAS_CELL_RANGE = "Send_To_Bot!AV3:BC3"
+
+TIMEOUT = secrets["Timeout"]
+
 ##End of Google Sheets stuff
 
 sheets_setup(secrets, service)
 setup_unitas_login(secrets)
-coolerlog.do_coolerlog_setup(secrets)
+set_timeout(TIMEOUT)
+coolerlog.do_coolerlog_setup(secrets, COOLER_LOG_TO_UNITAS_CELL_RANGE)
 
 if args.CoolerLogToUnitas:
     coolerlog.run_coolerlog_to_unitas()
