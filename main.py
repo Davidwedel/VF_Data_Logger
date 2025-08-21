@@ -91,7 +91,7 @@ creds = service_account.Credentials.from_service_account_file(
 service = build('sheets', 'v4', credentials=creds)
 
 #checkbox log cell
-checkbox_cell = "Send_To_Bot!BD3:BD3"
+checkbox_cell = "Send_To_Bot!AU3:AU3"
 
 ##End of Google Sheets stuff
 
