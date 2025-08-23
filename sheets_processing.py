@@ -1,6 +1,8 @@
 from google.oauth2 import service_account
+import logging
 from googleapiclient.discovery import build
 from unitas_processing_helper import count_columns_in_range
+from googleapiclient.errors import HttpError
 
 BACKOFF = 5
 RETRIES = 3
