@@ -45,7 +45,7 @@ def read_from_sheet(RANGE_NAME):
 
             values = resp.get("values", [])  # type: list[list[str]]
 
-            cols = (count_columns_in_range(RANGE_NAME) - 1)
+            cols = (count_columns_in_range(RANGE_NAME))
             #print(cols)
             values = [row + [""] * (cols - len(row)) for row in values]
 
