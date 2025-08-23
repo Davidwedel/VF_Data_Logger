@@ -77,7 +77,7 @@ def fill_coolerlog_values(driver, data):
         formatted_hour = f"{int(data[0][3]):02d}"
         helper.fill_input_by_datacy_and_id(driver, "input-hour", "PMCheck-H1", formatted_hour)
 
-    #lights_off_mm = data[18]
+    #PM_Check_mm = data[18]
     if data[0][4].strip() != "":
         formatted_minute = f"{int(data[0][4]):02d}"  # "05"
         helper.fill_input_by_datacy_and_id(driver, "input-minute", "PMCheck-H1", formatted_minute)
@@ -88,10 +88,10 @@ def fill_coolerlog_values(driver, data):
     ## pm temp initials
     helper.fill_input_by_id(driver, "PMInitial-H1", INITIALS)
 
-    ## pm temp
+    ## eggs picked up
     helper.fill_input_by_id(driver, "EggsPick-H1", data[0][6])
 
-    ## pm temp initials
+    ## comments
     helper.fill_input_by_id(driver, "Comments-H1", data[0][7])
 
 
