@@ -144,7 +144,7 @@ elif args.SingleRun or args.LogToSheet or args.DoXMLStuff or args.XMLThenCheckBo
 
                 time.sleep(10)
 
-        valuesToSend = read_from_sheet(SPREADSHEET_ID, SHEET_TO_UNITAS_RANGE_NAME, service)
+        valuesToSend = read_from_sheet(SHEET_TO_UNITAS_RANGE_NAME)
         run_unitas_stuff(valuesToSend)
 
 
