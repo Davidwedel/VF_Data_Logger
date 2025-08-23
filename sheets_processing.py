@@ -1,11 +1,21 @@
 from google.oauth2 import service_account
 import logging
 from googleapiclient.discovery import build
-from unitas_processing_helper import count_columns_in_range
+from unitas_helper import count_columns_in_range
 from googleapiclient.errors import HttpError
 
+SERVICE = None
+SPREADSHEET_ID = None
 BACKOFF = 5
 RETRIES = 3
+
+def sheets_setup(secrets, service):
+    global SERVICE, SPREADSHEET_ID
+
+    SERVICE = service
+    SPREADSHEET_ID = secrets["spreadsheet_id"]
+
+
 def write_to_sheet(values, SPREADSHEET_ID, RANGE_NAME, service):
     body = {
         'values': values
@@ -23,20 +33,19 @@ def write_to_sheet(values, SPREADSHEET_ID, RANGE_NAME, service):
 
     print(f"{result.get('updates').get('updatedRows')} rows appended.")
 
-def read_from_sheet(SPREADSHEET_ID, RANGE_NAME, service):
+def read_from_sheet(RANGE_NAME):
     attempt = 0
     while attempt < RETRIES:
         try:
-
             # Read
-            resp = service.spreadsheets().values().get(
+            resp = SERVICE.spreadsheets().values().get(
                 spreadsheetId=SPREADSHEET_ID,
                 range=RANGE_NAME
             ).execute()
 
             values = resp.get("values", [])  # type: list[list[str]]
 
-            cols = (count_columns_in_range(RANGE_NAME) - 1)
+            cols = (count_columns_in_range(RANGE_NAME))
             #print(cols)
             values = [row + [""] * (cols - len(row)) for row in values]
 

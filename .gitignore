@@ -6,3 +6,4 @@ credentials.json
 environment.json
 __pycache__
 ignored/
+.venv
