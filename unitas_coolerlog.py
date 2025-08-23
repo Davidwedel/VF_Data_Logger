@@ -147,4 +147,5 @@ def run_coolerlog_to_unitas():
     finally:
         print("Quitting.")
         print("Goodbye!")
+        driver.quit()
     
