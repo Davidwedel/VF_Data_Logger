@@ -80,4 +80,41 @@ def fill_input_by_id(driver, field_id, value, timeout=TIMEOUT):
         
     input_element.send_keys(value) # Insert the new value
 
+def fill_multiselect_box(driver, label, items):
+
+    ul_id = f"list-{label}"
+
+    # return if nothing
+    if items == "":
+        return
+
+    print(label)
+
+    dropdown = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable((By.CSS_SELECTOR, f'[aria-labelledby="{label}"] button'))
+)
+    dropdown.click()
+
+    # Wait for the dropdown options panel to be visible
+    WebDriverWait(driver, 5).until(
+        EC.presence_of_element_located((By.ID, ul_id))
+    )
+
+    # Convert string to list if needed
+    if isinstance(items, str):
+        items = [item.strip() for item in items.split(",")]
+
+    # Click each item by visible text
+    for item in items:
+        try:
+            xpath = f'//li[@data-cy="list-item"]//span[normalize-space()="{item}"]'
+            option = WebDriverWait(driver, 5).until(
+                EC.element_to_be_clickable((By.XPATH, xpath))
+            )
+            option.click()
+        except Exception as e:
+            print(f"⚠️ Could not select '{item}': {e}")
+
+    # Close the dropdown again
+    dropdown.click()
 

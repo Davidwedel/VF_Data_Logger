@@ -1,4 +1,3 @@
-systemctl stuff for script
 Implement logging to log.txt
 Implement Telegram bot for warnings
 send cooler temps to unitas?

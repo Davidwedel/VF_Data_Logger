@@ -130,6 +130,13 @@ User=$USER
 Environment=DISPLAY=:0
 Environment=XAUTHORITY=/home/$USER/.Xauthority
 
+# These ensure logs go to journal
+StandardOutput=journal
+StandardError=journal
+
+# Optional: prevent output buffering
+Environment=PYTHONUNBUFFERED=1
+
 [Install]
 WantedBy=graphical.target
 EOF
