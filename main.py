@@ -15,6 +15,7 @@ import json
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
 from datetime import datetime, timedelta
+import runstate as runstate
 
 logging.basicConfig(
     level=logging.INFO,
@@ -109,6 +110,7 @@ TIMEOUT = secrets["Timeout"]
 
 ##End of Google Sheets stuff
 
+runstate.make_sure_exists()
 sheets_setup(secrets, service)
 setup_unitas_login(secrets)
 set_timeout(TIMEOUT)
@@ -125,6 +127,8 @@ elif args.SingleRun or args.LogToSheet or args.DoXMLStuff or args.XMLThenCheckBo
         do_xml_setup(secrets)
         valuesFromXML = run_xml_stuff()
         write_to_sheet(valuesFromXML, SPREADSHEET_ID, XML_TO_SHEET_RANGE_NAME, service)
+        runstate.save_data()
+
         #delete all old files, so directory doesn't fill up.
         if not args.NoDelete:
             deleteOldFiles()
@@ -155,7 +159,7 @@ else:
     do_xml_setup(secrets)
 
     do_unitas_stuff = False
-    xml_to_sheet_ran = False
+    xml_to_sheet_ran = runstate.load_data()
     sheet_to_unitas_ran = False
 
     def coolerlog_unitas():
@@ -177,10 +181,11 @@ else:
             if not args.LogToUnitas:
                 valuesFromXML = run_xml_stuff()
                 write_to_sheet(valuesFromXML, SPREADSHEET_ID, XML_TO_SHEET_RANGE_NAME, service)
+                runstate.save_data()
                 if not args.NoDelete:
                     deleteOldFiles()
-            xml_to_sheet_ran = True
-            print("[XML] Logged XML → Sheets")
+                xml_to_sheet_ran = True
+                print("[XML] Logged XML → Sheets")
 
     def check_and_run_unitas():
         """Poll spreadsheet and run Unitas if checkbox is TRUE."""

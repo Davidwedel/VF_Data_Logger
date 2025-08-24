@@ -7,3 +7,4 @@ environment.json
 __pycache__
 ignored/
 .venv
+.runstate.json
