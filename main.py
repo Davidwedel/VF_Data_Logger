@@ -186,10 +186,10 @@ else:
         """Poll spreadsheet and run Unitas if checkbox is TRUE."""
         global xml_to_sheet_ran, sheet_to_unitas_ran
         if xml_to_sheet_ran and not sheet_to_unitas_ran and not args.LogToSheet:
-            do_unitas_stuff = read_from_sheet(SPREADSHEET_ID, checkbox_cell, service)
+            do_unitas_stuff = read_from_sheet(checkbox_cell)
             bool_value = do_unitas_stuff[0][0].upper() == 'TRUE'
             if bool_value:
-                valuesToSend = read_from_sheet(SPREADSHEET_ID, SHEET_TO_UNITAS_RANGE_NAME, service)
+                valuesToSend = read_from_sheet(SHEET_TO_UNITAS_RANGE_NAME)
                 run_unitas_stuff(valuesToSend)
                 sheet_to_unitas_ran = True
                 print("[Unitas] Logged Sheet → Unitas")
