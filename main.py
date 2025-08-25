@@ -43,24 +43,9 @@ parser.add_argument(
     help='Just Log to Unitas from Google Sheets'
 )
 parser.add_argument(
-    '--DoXMLStuff', '-DXS',
-    action='store_true',
-    help='Just do XML stuff. No log to Sheets or send to Unitas'
-)
-parser.add_argument(
     '--NoDelete', '-ND',
     action='store_true',
     help="Don't delete old XML files"
-)
-parser.add_argument(
-    '--SingleRun', '-SR',
-    action='store_true',
-    help="Run once, for single log, not the forever run"
-)
-parser.add_argument(
-    '--XMLThenCheckBox', '-XTC',
-    action='store_true',
-    help='Log from XMLs, then watch checkbox in spreadsheet, and log to Unitas when it is checked'
 )
 parser.add_argument(
     '--CoolerLogToUnitas', '-CTU',
