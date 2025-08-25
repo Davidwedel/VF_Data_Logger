@@ -32,7 +32,7 @@ def save_data(key):
 
     data[key] = today_str
 
-    with open(RUNSTATE_FILE, "w" as f:
+    with open(RUNSTATE_FILE, "w") as f:
         json.dump(data, f, indent=4)
 
     print("Saved:", data)

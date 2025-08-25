@@ -111,8 +111,8 @@ if args.LogToSheet:
     runstate.save_data("XML_TO_SHEET")
 
     #delete all old files, so directory doesn't fill up.
-        if not args.NoDelete:
-            deleteOldFiles()
+    if not args.NoDelete:
+        deleteOldFiles()
 
 elif args.CoolerLogToUnitas:
     coolerlog.run_coolerlog_to_unitas()
