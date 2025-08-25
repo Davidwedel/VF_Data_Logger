@@ -104,13 +104,13 @@ do_xml_setup(secrets)
 set_timeout(TIMEOUT)
 coolerlog.do_coolerlog_setup(secrets, COOLER_LOG_TO_UNITAS_CELL_RANGE)
 
+## Go through args to see if we are doing single run or the continuous one
 if args.LogToSheet:
     valuesFromXML = run_xml_stuff()
     write_to_sheet(valuesFromXML, SPREADSHEET_ID, XML_TO_SHEET_RANGE_NAME, service)
     runstate.save_data("XML_TO_SHEET")
 
     #delete all old files, so directory doesn't fill up.
-
         if not args.NoDelete:
             deleteOldFiles()
 
