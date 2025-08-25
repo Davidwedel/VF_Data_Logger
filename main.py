@@ -173,13 +173,13 @@ else:
 
     # define a helper to calculate the coolerlog->unitas run time
     def schedule_offset(base_time="00:15:00", offset_minutes=15):
-        h, m, s = map(int, base_time.split(":"))
+        h, m = map(int, base_time.split(":"))
         target = (datetime.combine(datetime.today(), datetime.min.time())
-                  + timedelta(hours=h, minutes=m, seconds=s)
+                  + timedelta(hours=h, minutes=m)
                   + timedelta(minutes=offset_minutes))
-        return target.strftime("%H:%M:%S")
+        return target.strftime("%H:%M")
 
-    run_time = schedule_offset("00:15:00", 15)  # -> "00:30:00"
+    run_time = schedule_offset(RETRIEVE_FROM_XML_TIME, 1)  #one minute after
     schedule.every().day.at(run_time).do(coolerlog_unitas)
 
     print(f"Job scheduled at {run_time}")
