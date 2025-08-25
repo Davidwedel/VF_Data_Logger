@@ -239,6 +239,7 @@ def run_unitas_stuff(values):
         driver.execute_script("arguments[0].scrollIntoView({ behavior: 'smooth', block: 'center' });", element)
 
         print("Worked!")
+        runstate.save_data("SHEET_TO_PRODUCTION")
         time.sleep(1)
 
     finally:

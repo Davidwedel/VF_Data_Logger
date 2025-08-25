@@ -95,57 +95,39 @@ TIMEOUT = secrets["Timeout"]
 
 ##End of Google Sheets stuff
 
+# setups
 runstate.make_sure_exists()
 sheets_setup(secrets, service)
 setup_unitas_login(secrets)
+do_unitas_setup(secrets)
+do_xml_setup(secrets)
 set_timeout(TIMEOUT)
 coolerlog.do_coolerlog_setup(secrets, COOLER_LOG_TO_UNITAS_CELL_RANGE)
 
-if args.CoolerLogToUnitas:
-    coolerlog.run_coolerlog_to_unitas()
+if args.LogToSheet:
+    valuesFromXML = run_xml_stuff()
+    write_to_sheet(valuesFromXML, SPREADSHEET_ID, XML_TO_SHEET_RANGE_NAME, service)
+    runstate.save_data("XML_TO_SHEET")
 
-elif args.SingleRun or args.LogToSheet or args.DoXMLStuff or args.XMLThenCheckBox or args.LogToUnitas:
-    print(f"Running in Single Run mode.")
+    #delete all old files, so directory doesn't fill up.
 
-    # read XMLs, delete
-    if not args.LogToUnitas:
-        do_xml_setup(secrets)
-        valuesFromXML = run_xml_stuff()
-        write_to_sheet(valuesFromXML, SPREADSHEET_ID, XML_TO_SHEET_RANGE_NAME, service)
-        runstate.save_data()
-
-        #delete all old files, so directory doesn't fill up.
         if not args.NoDelete:
             deleteOldFiles()
 
-    # we want to log to Unitas *at some point*
-    if not args.LogToSheet:
-        do_unitas_setup(secrets)
+elif args.CoolerLogToUnitas:
+    coolerlog.run_coolerlog_to_unitas()
 
-        if args.XMLThenCheckBox:
-            while True:
-                do_unitas_stuff = read_from_sheet(SPREADSHEET_ID, checkbox_cell, service)
-                string_value = do_unitas_stuff[0][0]
-                bool_value = string_value.upper() == 'TRUE'
-                do_unitas_stuff = bool_value
-                if do_unitas_stuff:
-                    break
-
-                time.sleep(10)
-
-        valuesToSend = read_from_sheet(SHEET_TO_UNITAS_RANGE_NAME)
-        run_unitas_stuff(valuesToSend)
+elif args.LogToUnitas:
+    valuesToSend = read_from_sheet(SHEET_TO_UNITAS_RANGE_NAME)
+    run_unitas_stuff(valuesToSend)
 
 
 else:
     print(f"Running in Forever Run mode.")
 
-    do_unitas_setup(secrets)
-    do_xml_setup(secrets)
-
     do_unitas_stuff = False
-    xml_to_sheet_ran = runstate.load_data()
-    sheet_to_unitas_ran = False
+    xml_to_sheet_ran = runstate.load_data("XML_TO_SHEET")
+    sheet_to_unitas_ran = runstate.load_data("SHEET_TO_PRODUCTION")
 
     def coolerlog_unitas():
         if(LOG_COOLER_TO_UNITAS):
@@ -166,7 +148,7 @@ else:
             if not args.LogToUnitas:
                 valuesFromXML = run_xml_stuff()
                 write_to_sheet(valuesFromXML, SPREADSHEET_ID, XML_TO_SHEET_RANGE_NAME, service)
-                runstate.save_data()
+                runstate.save_data("XML_TO_SHEET")
                 if not args.NoDelete:
                     deleteOldFiles()
                 xml_to_sheet_ran = True

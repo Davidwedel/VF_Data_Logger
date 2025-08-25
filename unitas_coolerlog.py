@@ -9,6 +9,7 @@ from selenium.webdriver.common.by import By
 from datetime import date, timedelta
 import unitas_helper as helper
 import time
+import runstate as runstate
 
 FARM_ID = None
 HOUSE_ID = None
@@ -143,6 +144,7 @@ def run_coolerlog_to_unitas():
         valuesToSend = read_from_sheet(RANGE_NAME)
         print(valuesToSend)
         fill_coolerlog_values(driver, valuesToSend)
+        runstate.save_data("SHEET_TO_COOLER")
         
     finally:
         print("Quitting.")
