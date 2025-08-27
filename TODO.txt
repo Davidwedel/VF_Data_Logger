@@ -7,7 +7,6 @@ make sure all settings are present
 warn if settings haven't been saved when user closes UI
 warn in setting isnt set when user closes UI
 do we need google imported stuff in main .py also time 
-TIMEOUT
 cases in xml stuff
 grab credentials.json from downloads
 

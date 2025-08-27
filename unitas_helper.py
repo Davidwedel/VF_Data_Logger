@@ -24,9 +24,6 @@ def count_columns_in_range(range_str):
     start_col, end_col = match.groups()
     return col_to_num(end_col) - col_to_num(start_col) + 1
 
-def click_when_clickable(driver, by, locator, timeout = TIMEOUT):
-    return WebDriverWait(driver, timeout).until(EC.element_to_be_clickable((by, locator)))
-
 def input_by_label_text(driver, label_text: str, value: str, timeout=TIMEOUT):
     """
     Find an input, textarea or select following a label with text.
@@ -40,14 +37,16 @@ def input_by_label_text(driver, label_text: str, value: str, timeout=TIMEOUT):
     el.clear()
     el.send_keys(str(value))
 
+def click_when_clickable(driver, by, locator):
+    return WebDriverWait(driver, TIMEOUT).until(EC.element_to_be_clickable((by, locator)))
 
-def fill_input_by_datacy_and_id(driver, data_cy: str, element_id: str, value, timeout = TIMEOUT):
+def fill_input_by_datacy_and_id(driver, data_cy: str, element_id: str, value):
 
     if value is None or value == "":
         print("none")
         return
 
-    wait = WebDriverWait(driver, timeout = TIMEOUT)
+    wait = WebDriverWait(driver, TIMEOUT)
     try:
         el = wait.until(
             EC.element_to_be_clickable((
@@ -64,13 +63,13 @@ def fill_input_by_datacy_and_id(driver, data_cy: str, element_id: str, value, ti
         )
 
 
-def fill_input_by_id(driver, field_id, value, timeout=TIMEOUT):
+def fill_input_by_id(driver, field_id, value):
     # empty. return
     if value is None or value == "":
         return
 
     # Wait for the input field to be visible
-    input_element = WebDriverWait(driver, timeout = TIMEOUT).until(
+    input_element = WebDriverWait(driver, TIMEOUT).until(
         EC.visibility_of_element_located((By.ID, field_id))
     )    
 
@@ -90,13 +89,13 @@ def fill_multiselect_box(driver, label, items):
 
     print(label)
 
-    dropdown = WebDriverWait(driver, 10).until(
+    dropdown = WebDriverWait(driver, TIMEOUT).until(
         EC.element_to_be_clickable((By.CSS_SELECTOR, f'[aria-labelledby="{label}"] button'))
 )
     dropdown.click()
 
     # Wait for the dropdown options panel to be visible
-    WebDriverWait(driver, 5).until(
+    WebDriverWait(driver, TIMEOUT).until(
         EC.presence_of_element_located((By.ID, ul_id))
     )
 

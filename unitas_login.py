@@ -26,7 +26,7 @@ def login(driver):
     password_box = wait.until(EC.visibility_of_element_located((By.ID, "password")))
     username_box.send_keys(USERNAME)
     password_box.send_keys(PASSWORD)
-    login_btn = click_when_clickable(driver, By.CSS_SELECTOR, "button[type='submit']", TIMEOUT)
+    login_btn = click_when_clickable(driver, By.CSS_SELECTOR, "button[type='submit']")
     login_btn.click()
     WebDriverWait(driver, TIMEOUT).until_not(EC.url_contains("/login"))
     print("Logged in")
