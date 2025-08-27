@@ -2,10 +2,12 @@
 
 set -e
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
 # Stuff for Systemd
 APP_NAME="datalogger"
-PYTHON_SCRIPT="/home/$USER/VF_Data_Logger/main.py"
-VENV="/home/$USER/VF_Data_Logger/.venv/bin/python"
+PYTHON_SCRIPT="$SCRIPT_DIR/main.py"
+VENV="$SCRIPT_DIR/.venv/bin/python"
 SERVICE_FILE="/etc/systemd/system/${APP_NAME}.service"
 
 # End of

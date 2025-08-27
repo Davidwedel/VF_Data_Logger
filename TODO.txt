@@ -1,4 +1,3 @@
-rewrite install.sh so we don't have to be in home dir
 Time zone stuff?? we need to set the computer time somehow
 make sure all settings are present
 warn in setting isnt set when user closes UI
