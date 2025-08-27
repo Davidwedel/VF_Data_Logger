@@ -97,7 +97,7 @@ class ConfigEditor:
         btn_frame.grid(row=len(VISIBLE_FIELDS), column=0, columnspan=2, pady=10)
         tk.Button(btn_frame, text="Save", command=self.save_config).pack(side=tk.LEFT, padx=5)
         tk.Button(btn_frame, text="Load", command=self.load_config).pack(side=tk.LEFT, padx=5)
-        tk.Button(btn_frame, text="Quit", command=root.quit).pack(side=tk.LEFT, padx=5)
+        tk.Button(btn_frame, text="Save and Quit", command=self.save_and_quit).pack(side=tk.LEFT, padx=5)
 
     def create_form(self, parent):
         for i, key in enumerate(VISIBLE_FIELDS):
@@ -199,6 +199,10 @@ class ConfigEditor:
                 field["widget"].insert(0, str(value))
             elif field["type"] == "checkbox":
                 field["variable"].set(bool(value))
+
+    def save_and_quit(self):
+        self.save_config()
+        root.quit()
 
     def save_config(self):
         try:
