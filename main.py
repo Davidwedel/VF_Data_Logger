@@ -12,8 +12,6 @@ from unitas_login import setup_unitas_login
 from unitas_helper import set_timeout
 import os
 import json
-from google.oauth2 import service_account
-from googleapiclient.discovery import build
 from datetime import datetime, timedelta
 import runstate as runstate
 
@@ -62,13 +60,6 @@ CONFIG_FILE = pathlib.Path(__file__).parent / "secrets.json"
 with open(CONFIG_FILE, "r") as f:
     secrets = json.load(f)
     
-# Path to your downloaded service account key
-SERVICE_ACCOUNT_FILE = pathlib.Path(__file__).parent / 'credentials.json'
-
-# Scopes required for Sheets API
-SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
-
-SPREADSHEET_ID = secrets["spreadsheet_id"]
 
 XML_TO_SHEET_RANGE_NAME = secrets["xml_to_sheet_range_name"]
 
@@ -77,13 +68,6 @@ SHEET_TO_UNITAS_RANGE_NAME = secrets["sheet_to_unitas_range_name"]
 RETRIEVE_FROM_XML_TIME = secrets["retrieve_from_xml_time"]
 
 LOG_COOLER_TO_UNITAS = secrets["Cooler_Log_To_Unitas"]
-
-# Authenticate with the service account
-creds = service_account.Credentials.from_service_account_file(
-    SERVICE_ACCOUNT_FILE, scopes=SCOPES)
-
-# Build the Sheets API client
-service = build('sheets', 'v4', credentials=creds)
 
 #checkbox log cell
 checkbox_cell = "Send_To_Bot!AU3:AU3"
@@ -97,7 +81,7 @@ TIMEOUT = secrets["Timeout"]
 
 # setups
 runstate.make_sure_exists()
-sheets_setup(secrets, service)
+sheets_setup(secrets)
 setup_unitas_login(secrets)
 do_unitas_setup(secrets)
 do_xml_setup(secrets)
@@ -107,7 +91,7 @@ coolerlog.do_coolerlog_setup(secrets, COOLER_LOG_TO_UNITAS_CELL_RANGE)
 ## Go through args to see if we are doing single run or the continuous one
 if args.LogToSheet:
     valuesFromXML = run_xml_stuff()
-    write_to_sheet(valuesFromXML, SPREADSHEET_ID, XML_TO_SHEET_RANGE_NAME, service)
+    write_to_sheet(valuesFromXML, XML_TO_SHEET_RANGE_NAME)
     runstate.save_data("XML_TO_SHEET")
 
     #delete all old files, so directory doesn't fill up.
@@ -147,7 +131,7 @@ else:
         if not xml_to_sheet_ran:
             if not args.LogToUnitas:
                 valuesFromXML = run_xml_stuff()
-                write_to_sheet(valuesFromXML, SPREADSHEET_ID, XML_TO_SHEET_RANGE_NAME, service)
+                write_to_sheet(valuesFromXML,  XML_TO_SHEET_RANGE_NAME)
                 runstate.save_data("XML_TO_SHEET")
                 if not args.NoDelete:
                     deleteOldFiles()

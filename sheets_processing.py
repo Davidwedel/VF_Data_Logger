@@ -1,29 +1,41 @@
 from google.oauth2 import service_account
-import logging
 from googleapiclient.discovery import build
-from unitas_helper import count_columns_in_range
 from googleapiclient.errors import HttpError
+import logging
+from unitas_helper import count_columns_in_range
+import pathlib
 
 SERVICE = None
 SPREADSHEET_ID = None
 BACKOFF = 5
 RETRIES = 3
 
-def sheets_setup(secrets, service):
+def sheets_setup(secrets):
     global SERVICE, SPREADSHEET_ID
 
-    SERVICE = service
     SPREADSHEET_ID = secrets["spreadsheet_id"]
 
+    # Path to your downloaded service account key
+    SERVICE_ACCOUNT_FILE = pathlib.Path(__file__).parent / 'credentials.json'
 
-def write_to_sheet(values, SPREADSHEET_ID, RANGE_NAME, service):
+    # Scopes required for Sheets API
+    SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
+
+    # Authenticate with the service account
+    creds = service_account.Credentials.from_service_account_file(
+        SERVICE_ACCOUNT_FILE, scopes=SCOPES)
+
+    # Build the Sheets API client
+    SERVICE = build('sheets', 'v4', credentials=creds)
+
+def write_to_sheet(values, RANGE_NAME):
     body = {
         'values': values
     }
 
 
     # Append the rows
-    result = service.spreadsheets().values().append(
+    result = SERVICE.spreadsheets().values().append(
         spreadsheetId=SPREADSHEET_ID,
         range=RANGE_NAME,
         valueInputOption='USER_ENTERED',  # or RAW
