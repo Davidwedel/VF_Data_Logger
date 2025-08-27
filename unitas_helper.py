@@ -25,19 +25,6 @@ def count_columns_in_range(range_str):
     start_col, end_col = match.groups()
     return col_to_num(end_col) - col_to_num(start_col) + 1
 
-def input_by_label_text(driver, label_text: str, value: str, timeout=TIMEOUT):
-    """
-    Find an input, textarea or select following a label with text.
-    Adjust the XPath if the site's DOM differs.
-    """
-    xpath = (
-        f"//label[normalize-space(text())='{label_text}']"
-        "/following::*[self::input or self::textarea or self::select][1]"
-    )
-    el = WebDriverWait(driver, timeout = TIMEOUT).until(EC.element_to_be_clickable((By.XPATH, xpath)))
-    el.clear()
-    el.send_keys(str(value))
-
 def click_when_clickable(driver, by, locator):
     return WebDriverWait(driver, TIMEOUT).until(EC.element_to_be_clickable((by, locator)))
 
