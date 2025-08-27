@@ -13,11 +13,6 @@ SERVICE_FILE="/etc/systemd/system/${APP_NAME}.service"
 # End of
 
 UPLOAD_DIR="/srv/ftp/upload"
-INTERFACE="${1:-enp3s0}"
-STATIC_IP="192.168.1.150/24"
-GATEWAY="192.168.1.1"
-DNS="1.1.1.1"
-NETWORK_FILE="/etc/systemd/network/20-wired.network"
 
 echo "[*] Installing vsftpd..."
 
