@@ -281,9 +281,6 @@ def run_xml_stuff():
 
     #get yesterday's date, as formatted in the xml filename I.E. YYYYMMDD(20250722)
     yesterday = (date.today() - timedelta(days=1)).strftime("%Y%m%d")
-    #yesterday = date.today().strftime("%Y%m%d")
-
-    #print("Yesterday:" + yesterday)
 
     #file pattern to yesterday's files
     yesterdayFiles = os.path.join(xmlFolder, (yesterday+"*.xml"))
@@ -295,10 +292,8 @@ def run_xml_stuff():
     else:
         print("No files found for yesterday. Exiting...")
         return None
-        #exit()
 
     #end figuring various things we need to know
-
 
     #for the spreadsheet
     now = datetime.now()
