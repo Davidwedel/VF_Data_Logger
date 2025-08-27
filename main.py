@@ -8,6 +8,8 @@ from xml_processing import do_xml_setup, run_xml_stuff, deleteOldFiles
 from sheets_processing import read_from_sheet, write_to_sheet, sheets_setup
 from unitas_production import do_unitas_setup, run_unitas_stuff
 import unitas_coolerlog as coolerlog
+from rotem_login import setup_login as setup_rotem_login
+from rotem_mortality import run_mortality_to_rotem
 from unitas_login import setup_unitas_login
 from unitas_helper import set_timeout
 import os
@@ -29,6 +31,11 @@ parser = argparse.ArgumentParser(
         epilog="""***!!!REMEMBER!!!*** All actions are performed on Yesterdays data. This includes all logging from XMLs and logging to Unitas!
         All arguments will only run once. To run in 'Forever Mode', where the script is fully automatic, just drop all arguments."""
         )
+parser.add_argument(
+    '--MortalityToRotem', '-MR',
+    action='store_true',
+    help='Send Mortality from Sheets to Rotem'
+)
 
 parser.add_argument(
     '--LogToSheet', '-LS',
@@ -83,13 +90,17 @@ TIMEOUT = secrets["Timeout"]
 runstate.make_sure_exists()
 sheets_setup(secrets)
 setup_unitas_login(secrets)
+setup_rotem_login(secrets)
 do_unitas_setup(secrets)
 do_xml_setup(secrets)
 set_timeout(TIMEOUT)
 coolerlog.do_coolerlog_setup(secrets, COOLER_LOG_TO_UNITAS_CELL_RANGE)
 
 ## Go through args to see if we are doing single run or the continuous one
-if args.LogToSheet:
+if args.MortalityToRotem:
+    run_mortality_to_rotem()
+
+elif args.LogToSheet:
     valuesFromXML = run_xml_stuff()
     write_to_sheet(valuesFromXML, XML_TO_SHEET_RANGE_NAME)
     runstate.save_data("XML_TO_SHEET")
