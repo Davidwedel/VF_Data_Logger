@@ -27,7 +27,10 @@ DEFAULT_CONFIG = {
     "Timeout": "",
     "sheet_to_unitas_range_name": "",
     "Cooler_Log_to_Unitas": False,
-    "Cooler_Log_Initials": ""
+    "Cooler_Log_Initials": "",
+    "Send_To_Rotem": False,
+    "Rotem_UserName": "",
+    "Rotem_Password": ""
 }
 
 FIELD_LABELS = {
@@ -42,7 +45,10 @@ FIELD_LABELS = {
     "Farm_ID": "Unitas Farm ID",
     "House_ID": "Unitas House Id",
     "Cooler_Log_To_Unitas": "Cooler Log to Unitas",
-    "Cooler_Log_Initials": "Cooler Log Initials"
+    "Cooler_Log_Initials": "Cooler Log Initials",
+    "Send_To_Rotem": "Send To Rotem",
+    "Rotem_UserName": "RotemWeb Username",
+    "Rotem_Password": "RotemWeb Password"
 }
 
 PASSWORD_FIELDS = [
@@ -51,7 +57,9 @@ PASSWORD_FIELDS = [
     "Unitas_Password",
     "Farm_ID",
     "House_ID",
-    "Cooler_Log_Initials"
+    "Cooler_Log_Initials",
+    "Rotem_UserName",
+    "Rotem_Password"
 ]
 
 TIME_FIELDS = [
@@ -62,7 +70,8 @@ TIME_FIELDS = [
 ]
 
 CHECKBOX_FIELDS = [
-    "Cooler_Log_To_Unitas"
+    "Cooler_Log_To_Unitas",
+    "Send_To_Rotem"
 ]
 
 VISIBLE_FIELDS = list(FIELD_LABELS.keys())
