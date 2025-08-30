@@ -1,6 +1,7 @@
 import os
 import time
 import unitas_helper as helper
+from filelock import FileLock
 
 from selenium import webdriver
 from selenium.webdriver.firefox.service import Service
@@ -38,11 +39,14 @@ def do_unitas_setup(secrets):
 
 
 def make_driver(headless: bool = False):
+    lock = FileLock("/tmp/geckodriver_download.lock")
+    with lock: 
+        driver_path = GeckoDriverManager().install()
     options = webdriver.FirefoxOptions()
     if headless:
         options.add_argument("--headless")
     return webdriver.Firefox(
-        service=Service(GeckoDriverManager().install()),
+        service=Service(driver_path),
         options=options
     )
 

@@ -1,3 +1,4 @@
+from filelock import FileLock
 from unitas_login import login
 from sheets_processing import read_from_sheet
 from webdriver_manager.firefox import GeckoDriverManager
@@ -29,11 +30,14 @@ def do_coolerlog_setup(secrets, range_name):
     COOLERLOG_URL = f"https://vitalfarms.poultrycloud.com/farm/cooler-log/coolerlog/new?farmId={FARM_ID}&houseId={HOUSE_ID}"
 
 def make_driver(headless: bool = False):
+    lock = FileLock("/tmp/geckodriver_download.lock")
+    with lock: 
+        driver_path = GeckoDriverManager().install()
     options = webdriver.FirefoxOptions()
     if headless:
         options.add_argument("--headless")
     return webdriver.Firefox(
-        service=Service(GeckoDriverManager().install()),
+        service=Service(driver_path),
         options=options
     )
 def open_coolerlog_page(driver):
