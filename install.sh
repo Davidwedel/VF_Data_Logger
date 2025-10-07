@@ -64,7 +64,6 @@ use_localtime=YES
 xferlog_enable=YES
 connect_from_port_20=NO
 xferlog_file=/var/log/vsftpd.log
-secure_chroot_dir=/var/run/vsftpd/empty
 pam_service_name=vsftpd
 anon_other_write_enable=YES
 log_ftp_protocol=YES
